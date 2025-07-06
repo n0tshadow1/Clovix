@@ -148,48 +148,55 @@ body {
     left: 100%;
 }
 
+/* Platform-specific tab styling - more specific selectors */
+.nav-tabs .nav-link[href="#youtube-pane"].active {
+    background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 50%, #dc2626 100%) !important;
+    border-color: rgba(127, 29, 29, 0.8) !important;
+    box-shadow: 0 0 20px rgba(127, 29, 29, 0.4) !important;
+    color: white !important;
+}
+
+.nav-tabs .nav-link[href="#instagram-pane"].active {
+    background: linear-gradient(135deg, #581c87 0%, #7c3aed 50%, #a855f7 100%) !important;
+    border-color: rgba(88, 28, 135, 0.8) !important;
+    box-shadow: 0 0 20px rgba(88, 28, 135, 0.4) !important;
+    color: white !important;
+}
+
+.nav-tabs .nav-link[href="#facebook-pane"].active {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%) !important;
+    border-color: rgba(30, 58, 138, 0.8) !important;
+    box-shadow: 0 0 20px rgba(30, 58, 138, 0.4) !important;
+    color: white !important;
+}
+
+.nav-tabs .nav-link[href="#twitter-pane"].active {
+    background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%) !important;
+    border-color: rgba(56, 189, 248, 0.8) !important;
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.4) !important;
+    color: white !important;
+}
+
+.nav-tabs .nav-link[href="#tiktok-pane"].active {
+    background: linear-gradient(135deg, #000000 0%, #1f2937 50%, #374151 100%) !important;
+    border-color: rgba(0, 0, 0, 0.8) !important;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6) !important;
+    color: white !important;
+}
+
+.nav-tabs .nav-link[href="#other-pane"].active {
+    background: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%) !important;
+    border-color: rgba(31, 41, 55, 0.8) !important;
+    box-shadow: 0 0 20px rgba(31, 41, 55, 0.4) !important;
+    color: white !important;
+}
+
+/* Default tab styling */
 .nav-tabs .nav-link.active {
     background: var(--primary-gradient);
     border-color: rgba(59, 130, 246, 0.8);
     color: white;
     box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
-}
-
-/* Platform-specific tab styling */
-.nav-tabs .nav-link[href="#youtube-pane"].active {
-    background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 50%, #dc2626 100%);
-    border-color: rgba(127, 29, 29, 0.8);
-    box-shadow: 0 0 20px rgba(127, 29, 29, 0.4);
-}
-
-.nav-tabs .nav-link[href="#instagram-pane"].active {
-    background: linear-gradient(135deg, #581c87 0%, #7c3aed 50%, #a855f7 100%);
-    border-color: rgba(88, 28, 135, 0.8);
-    box-shadow: 0 0 20px rgba(88, 28, 135, 0.4);
-}
-
-.nav-tabs .nav-link[href="#facebook-pane"].active {
-    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%);
-    border-color: rgba(30, 58, 138, 0.8);
-    box-shadow: 0 0 20px rgba(30, 58, 138, 0.4);
-}
-
-.nav-tabs .nav-link[href="#twitter-pane"].active {
-    background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%);
-    border-color: rgba(56, 189, 248, 0.8);
-    box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
-}
-
-.nav-tabs .nav-link[href="#tiktok-pane"].active {
-    background: linear-gradient(135deg, #000000 0%, #1f2937 50%, #374151 100%);
-    border-color: rgba(0, 0, 0, 0.8);
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
-}
-
-.nav-tabs .nav-link[href="#other-pane"].active {
-    background: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);
-    border-color: rgba(31, 41, 55, 0.8);
-    box-shadow: 0 0 20px rgba(31, 41, 55, 0.4);
 }
 
 /* Forms */

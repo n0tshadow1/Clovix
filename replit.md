@@ -126,7 +126,7 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### July 06, 2025 - Vercel Deployment & Major UI/UX Enhancements
+### July 06, 2025 - UI/UX Consistency & Mobile Optimization
 - **Made project fully compatible with Vercel hosting platform**
 - Created vercel.json configuration for serverless deployment
 - Added vercel_requirements.txt with essential dependencies
@@ -157,6 +157,12 @@ Preferred communication style: Simple, everyday language.
 - Implemented proper scaling and shadow transitions
 - Enhanced disabled states with visual feedback
 - Added icon rotation animations on interaction
+- **Fixed format selection consistency and mobile responsiveness**
+- Made Video/Audio format selection boxes smaller and consistent with blue theme
+- Removed multi-color quality options, keeping only blue theme throughout
+- Added mobile responsive design ensuring two boxes per line on mobile devices
+- Fixed tab selection colors to match analyze button colors for each platform (YouTube: red, Instagram: purple, Facebook: blue, Twitter: light blue, TikTok: black, Other: grey)
+- Improved download button styling with proper gradients and hover effects
 
 ### July 01, 2025 - Quality Selection & Download Fixes
 - Fixed quality selection click handlers in JavaScript
