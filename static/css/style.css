@@ -155,6 +155,43 @@ body {
     box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
 }
 
+/* Platform-specific tab styling */
+.nav-tabs .nav-link[href="#youtube-pane"].active {
+    background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 50%, #dc2626 100%);
+    border-color: rgba(127, 29, 29, 0.8);
+    box-shadow: 0 0 20px rgba(127, 29, 29, 0.4);
+}
+
+.nav-tabs .nav-link[href="#instagram-pane"].active {
+    background: linear-gradient(135deg, #581c87 0%, #7c3aed 50%, #a855f7 100%);
+    border-color: rgba(88, 28, 135, 0.8);
+    box-shadow: 0 0 20px rgba(88, 28, 135, 0.4);
+}
+
+.nav-tabs .nav-link[href="#facebook-pane"].active {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%);
+    border-color: rgba(30, 58, 138, 0.8);
+    box-shadow: 0 0 20px rgba(30, 58, 138, 0.4);
+}
+
+.nav-tabs .nav-link[href="#twitter-pane"].active {
+    background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%);
+    border-color: rgba(56, 189, 248, 0.8);
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+}
+
+.nav-tabs .nav-link[href="#tiktok-pane"].active {
+    background: linear-gradient(135deg, #000000 0%, #1f2937 50%, #374151 100%);
+    border-color: rgba(0, 0, 0, 0.8);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+}
+
+.nav-tabs .nav-link[href="#other-pane"].active {
+    background: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);
+    border-color: rgba(31, 41, 55, 0.8);
+    box-shadow: 0 0 20px rgba(31, 41, 55, 0.4);
+}
+
 /* Forms */
 .form-control {
     background-color: rgba(255, 255, 255, 0.05);
@@ -400,26 +437,81 @@ body {
 /* Enhanced Quality Selection */
 .quality-simple-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
     margin-top: 1rem;
+}
+
+/* Mobile responsive - ensure 2 columns on mobile */
+@media (max-width: 768px) {
+    .quality-simple-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+    }
+    
+    .quality-option {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+        min-height: 60px;
+    }
+    
+    .simple-option[data-step="format"] {
+        padding: 0.75rem;
+        min-height: 50px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Format type selection (Video/Audio) */
+.simple-option[data-step="format"] {
+    padding: 1rem;
+    text-align: center;
+    background: linear-gradient(145deg, rgba(59, 130, 246, 0.1), rgba(15, 23, 42, 0.9));
+    border: 2px solid rgba(59, 130, 246, 0.2);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.simple-option[data-step="format"]:hover {
+    background: linear-gradient(145deg, rgba(59, 130, 246, 0.2), rgba(30, 41, 59, 0.9));
+    border-color: rgba(59, 130, 246, 0.4);
+    transform: translateY(-2px);
+    color: white;
+}
+
+.simple-option[data-step="format"].selected {
+    background: linear-gradient(145deg, #3b82f6, #1d4ed8);
+    border-color: #60a5fa;
+    color: white;
+    transform: translateY(-1px);
 }
 
 .quality-option {
     position: relative;
-    background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+    background: linear-gradient(145deg, rgba(59, 130, 246, 0.1), rgba(15, 23, 42, 0.9));
     border: 2px solid rgba(59, 130, 246, 0.2);
-    border-radius: 16px;
-    padding: 1.25rem 1rem;
+    border-radius: 12px;
+    padding: 0.75rem 0.5rem;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     color: var(--text-color);
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     backdrop-filter: blur(10px);
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    min-height: 70px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .quality-option::before {
@@ -434,10 +526,10 @@ body {
 }
 
 .quality-option:hover {
-    transform: translateY(-3px) scale(1.02);
-    background: linear-gradient(145deg, rgba(59, 130, 246, 0.15), rgba(30, 41, 59, 0.9));
-    border-color: rgba(59, 130, 246, 0.5);
-    box-shadow: 0 8px 30px rgba(59, 130, 246, 0.2);
+    transform: translateY(-2px) scale(1.02);
+    background: linear-gradient(145deg, rgba(59, 130, 246, 0.2), rgba(30, 41, 59, 0.9));
+    border-color: rgba(59, 130, 246, 0.4);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
     color: white;
 }
 
@@ -490,35 +582,35 @@ body {
     font-size: 0.8rem;
 }
 
-/* Quality-specific styling */
-.quality-option[data-quality*="2160"] {
-    background: linear-gradient(145deg, rgba(168, 85, 247, 0.2), rgba(15, 23, 42, 0.9));
-    border-color: rgba(168, 85, 247, 0.3);
+/* All quality options use consistent blue theme */
+
+/* Download button styling */
+.btn-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    padding: 0.875rem 1.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 }
 
-.quality-option[data-quality*="2160"]:hover {
-    background: linear-gradient(145deg, rgba(168, 85, 247, 0.3), rgba(30, 41, 59, 0.9));
-    border-color: rgba(168, 85, 247, 0.6);
+.btn-success:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    color: white;
 }
 
-.quality-option[data-quality*="1440"] {
-    background: linear-gradient(145deg, rgba(239, 68, 68, 0.2), rgba(15, 23, 42, 0.9));
-    border-color: rgba(239, 68, 68, 0.3);
-}
-
-.quality-option[data-quality*="1440"]:hover {
-    background: linear-gradient(145deg, rgba(239, 68, 68, 0.3), rgba(30, 41, 59, 0.9));
-    border-color: rgba(239, 68, 68, 0.6);
-}
-
-.quality-option[data-quality*="1080"] {
-    background: linear-gradient(145deg, rgba(34, 197, 94, 0.2), rgba(15, 23, 42, 0.9));
-    border-color: rgba(34, 197, 94, 0.3);
-}
-
-.quality-option[data-quality*="1080"]:hover {
-    background: linear-gradient(145deg, rgba(34, 197, 94, 0.3), rgba(30, 41, 59, 0.9));
-    border-color: rgba(34, 197, 94, 0.6);
+.btn-success:disabled {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    transform: none;
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
 /* Step indicators enhancement */
