@@ -202,37 +202,45 @@ class VideoDownloader {
         
         if (this.selectedFormat === 'video') {
             const videoQualities = [
-                { label: '4K (2160p)', formatId: 'best[height<=2160]' },
-                { label: '2K (1440p)', formatId: 'best[height<=1440]' },
-                { label: '1080p', formatId: 'best[height<=1080]' },
-                { label: '720p', formatId: 'best[height<=720]' },
-                { label: '480p', formatId: 'best[height<=480]' },
-                { label: '360p', formatId: 'best[height<=360]' },
-                { label: '240p', formatId: 'best[height<=240]' },
-                { label: '144p', formatId: 'best[height<=144]' }
+                { label: '4K (2160p)', formatId: 'best[height<=2160]', icon: '👑', desc: 'Ultra HD' },
+                { label: '2K (1440p)', formatId: 'best[height<=1440]', icon: '⭐', desc: 'Quad HD' },
+                { label: '1080p', formatId: 'best[height<=1080]', icon: '🔥', desc: 'Full HD' },
+                { label: '720p', formatId: 'best[height<=720]', icon: '✨', desc: 'HD Ready' },
+                { label: '480p', formatId: 'best[height<=480]', icon: '📱', desc: 'Standard' },
+                { label: '360p', formatId: 'best[height<=360]', icon: '💾', desc: 'Low' },
+                { label: '240p', formatId: 'best[height<=240]', icon: '📶', desc: 'Mobile' },
+                { label: '144p', formatId: 'best[height<=144]', icon: '⚡', desc: 'Data Saver' }
             ];
             
             videoQualities.forEach(quality => {
                 const option = document.createElement('div');
                 option.className = 'quality-option simple-option';
                 option.dataset.quality = quality.formatId;
-                option.textContent = quality.label;
+                option.innerHTML = `
+                    <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">${quality.icon}</div>
+                    <div style="font-weight: 600;">${quality.label}</div>
+                    <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.25rem;">${quality.desc}</div>
+                `;
                 console.log('Creating quality option:', quality.label, 'with classes:', option.className);
                 qualityOptions.appendChild(option);
             });
         } else if (this.selectedFormat === 'audio') {
             const audioQualities = [
-                { label: 'Best', formatId: 'bestaudio' },
-                { label: '320k', formatId: 'bestaudio[abr<=320]' },
-                { label: '192k', formatId: 'bestaudio[abr<=192]' },
-                { label: '128k', formatId: 'bestaudio[abr<=128]' }
+                { label: 'Best Quality', formatId: 'bestaudio', icon: '🎵', desc: 'Highest Available' },
+                { label: '320 kbps', formatId: 'bestaudio[abr<=320]', icon: '🔊', desc: 'Premium' },
+                { label: '192 kbps', formatId: 'bestaudio[abr<=192]', icon: '🎧', desc: 'High Quality' },
+                { label: '128 kbps', formatId: 'bestaudio[abr<=128]', icon: '📻', desc: 'Standard' }
             ];
             
             audioQualities.forEach(quality => {
                 const option = document.createElement('div');
                 option.className = 'quality-option simple-option';
                 option.dataset.quality = quality.formatId;
-                option.textContent = quality.label;
+                option.innerHTML = `
+                    <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">${quality.icon}</div>
+                    <div style="font-weight: 600;">${quality.label}</div>
+                    <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.25rem;">${quality.desc}</div>
+                `;
                 qualityOptions.appendChild(option);
             });
         }
