@@ -126,12 +126,19 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### July 06, 2025 - Vercel Deployment & Design Updates
+### July 06, 2025 - Vercel Deployment & YouTube Bot Detection Fixes
 - **Made project fully compatible with Vercel hosting platform**
 - Created vercel.json configuration for serverless deployment
 - Added vercel_requirements.txt with essential dependencies
 - Created WSGI entry point and deployment documentation
 - Added .vercelignore file to optimize deployment
+- **Enhanced YouTube bot detection handling for cloud platforms**
+- Added multiple user agent rotation to avoid detection patterns
+- Implemented exponential backoff with jitter for retry attempts
+- Added Android mobile client fallback for better server compatibility
+- Enhanced HTTP headers to mimic legitimate browser requests
+- Added specific error handling for different YouTube restriction types
+- Implemented multiple extraction strategies (enhanced → basic → fallback)
 - **Design improvements for balanced visual appeal**
 - Added animated black and blue gradient background
 - Reduced navbar height and made it more compact

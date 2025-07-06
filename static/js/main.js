@@ -65,7 +65,11 @@ class VideoDownloader {
     showError(message) {
         const errorDiv = document.getElementById('error-display');
         const errorMessage = document.getElementById('error-message');
-        errorMessage.textContent = message;
+        
+        // Convert newlines to HTML breaks for proper formatting
+        const formattedMessage = message.replace(/\n/g, '<br>');
+        errorMessage.innerHTML = formattedMessage;
+        
         errorDiv.style.display = 'block';
         this.hideVideoInfo();
     }
@@ -394,7 +398,24 @@ class VideoDownloader {
             this.showVideoInfo(data);
         } catch (error) {
             console.error('Analysis error:', error);
-            this.showError(error.message || 'Failed to analyze video. Please check the URL and try again.');
+            
+            // Provide more helpful error messages for common issues
+            let errorMessage = error.message || 'Failed to analyze video. Please check the URL and try again.';
+            
+            // Check for YouTube bot detection or common hosting platform issues
+            if (errorMessage.includes('blocking automated requests') || 
+                errorMessage.includes('Sign in to confirm') ||
+                errorMessage.includes('bot')) {
+                errorMessage = `YouTube Access Issue: ${errorMessage}\n\nThis happens on some cloud hosting platforms. You can try:\n• Using a different video URL\n• Waiting a few minutes and trying again\n• Using videos from other platforms (Instagram, Facebook, etc.)`;
+            } else if (errorMessage.includes('Private video')) {
+                errorMessage = 'This video is private and cannot be downloaded.';
+            } else if (errorMessage.includes('Video unavailable')) {
+                errorMessage = 'This video is not available. It may have been deleted or restricted in your region.';
+            } else if (errorMessage.includes('Age-restricted')) {
+                errorMessage = 'This video is age-restricted and cannot be accessed without authentication.';
+            }
+            
+            this.showError(errorMessage);
         } finally {
             this.showLoading(false);
         }
