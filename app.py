@@ -206,6 +206,10 @@ def download_file(download_id):
         if not os.path.exists(filename):
             return jsonify({'error': 'File not found'}), 404
         
+        # Ensure we're not downloading JSON files
+        if filename.endswith('.json') or filename.endswith('.info') or filename.endswith('.description'):
+            return jsonify({'error': 'Invalid file type - video file not found'}), 404
+        
         # Get original filename for download
         original_name = os.path.basename(filename)
         

@@ -297,11 +297,13 @@ class VideoDownloader:
                 with self.memory_managed_extraction(ydl_opts) as ydl:
                     ydl.download([url])
                 
-                # Find downloaded file
-                files = [f for f in os.listdir(temp_dir) if not f.endswith('.part')]
-                if files:
-                    # Find the largest file (actual video, not metadata)
-                    largest_file = max(files, key=lambda f: os.path.getsize(os.path.join(temp_dir, f)))
+                # Find downloaded file - only get video files, not JSON
+                all_files = os.listdir(temp_dir)
+                video_files = [f for f in all_files if not f.endswith('.part') and not f.endswith('.json') and not f.endswith('.info') and not f.endswith('.description') and not f.endswith('.annotations')]
+                
+                if video_files:
+                    # Find the largest video file (actual video, not metadata)
+                    largest_file = max(video_files, key=lambda f: os.path.getsize(os.path.join(temp_dir, f)))
                     file_path = os.path.join(temp_dir, largest_file)
                     
                     # Copy to a permanent location for download
@@ -315,7 +317,7 @@ class VideoDownloader:
                         'filename': largest_file
                     }
                 else:
-                    return {'error': 'No file was downloaded'}
+                    return {'error': 'No video file was downloaded'}
                     
         except Exception as e:
             logging.error(f"Download error: {str(e)}")
