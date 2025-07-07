@@ -25,6 +25,18 @@ class VideoDownloader:
         
     def get_video_info(self, url):
         """Extract video information with memory optimization and enhanced YouTube handling"""
+        # Check if URL is from an unsupported platform first
+        unsupported_domains = [
+            'replit.com', 'github.com', 'gitlab.com', 'bitbucket.org',
+            'codepen.io', 'jsfiddle.net', 'stackoverflow.com', 'google.com',
+            'microsoft.com', 'apple.com', 'amazon.com', 'netflix.com'
+        ]
+        
+        if any(domain in url.lower() for domain in unsupported_domains):
+            return {
+                'error': f'This URL is not supported for video downloading. Please use a video URL from supported platforms like:\n\n• YouTube (youtube.com, youtu.be)\n• Instagram (instagram.com)\n• Facebook (facebook.com)\n• Twitter (twitter.com)\n• TikTok (tiktok.com)\n• And many other video platforms\n\nThe URL you provided appears to be from {url.split("://")[1].split("/")[0]}'
+            }
+        
         # Try different extraction strategies for YouTube URLs
         if 'youtube.com' in url or 'youtu.be' in url:
             return self._get_youtube_info_optimized(url)
