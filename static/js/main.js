@@ -201,16 +201,45 @@ class VideoDownloader {
         qualityOptions.innerHTML = '';
         
         if (this.selectedFormat === 'video') {
-            const videoQualities = [
-                { label: '4K (2160p)', formatId: 'best[height<=2160]', desc: 'Ultra HD' },
-                { label: '2K (1440p)', formatId: 'best[height<=1440]', desc: 'Quad HD' },
-                { label: '1080p', formatId: 'best[height<=1080]', desc: 'Full HD' },
-                { label: '720p', formatId: 'best[height<=720]', desc: 'HD Ready' },
-                { label: '480p', formatId: 'best[height<=480]', desc: 'Standard' },
-                { label: '360p', formatId: 'best[height<=360]', desc: 'Low' },
-                { label: '240p', formatId: 'best[height<=240]', desc: 'Mobile' },
-                { label: '144p', formatId: 'best[height<=144]', desc: 'Data Saver' }
-            ];
+            // Use actual format data from the video
+            const videoQualities = [];
+            
+            // Get available formats from video data
+            if (this.videoData && this.videoData.formats) {
+                // Create quality options based on available formats
+                const availableHeights = [...new Set(this.videoData.formats.map(f => f.height))].sort((a, b) => b - a);
+                
+                availableHeights.forEach(height => {
+                    const format = this.videoData.formats.find(f => f.height === height);
+                    if (format) {
+                        let label, desc;
+                        if (height >= 2160) { label = '4K (2160p)'; desc = 'Ultra HD'; }
+                        else if (height >= 1440) { label = '2K (1440p)'; desc = 'Quad HD'; }
+                        else if (height >= 1080) { label = '1080p'; desc = 'Full HD'; }
+                        else if (height >= 720) { label = '720p'; desc = 'HD Ready'; }
+                        else if (height >= 480) { label = '480p'; desc = 'Standard'; }
+                        else if (height >= 360) { label = '360p'; desc = 'Low'; }
+                        else if (height >= 240) { label = '240p'; desc = 'Mobile'; }
+                        else { label = '144p'; desc = 'Data Saver'; }
+                        
+                        videoQualities.push({
+                            label: label,
+                            formatId: format.format_id,
+                            desc: desc,
+                            height: height
+                        });
+                    }
+                });
+            }
+            
+            // Fallback if no formats available
+            if (videoQualities.length === 0) {
+                videoQualities.push(
+                    { label: '720p', formatId: 'best[height<=720]', desc: 'HD Ready' },
+                    { label: '480p', formatId: 'best[height<=480]', desc: 'Standard' },
+                    { label: '360p', formatId: 'best[height<=360]', desc: 'Low' }
+                );
+            }
             
             videoQualities.forEach(quality => {
                 const option = document.createElement('div');
@@ -253,13 +282,24 @@ class VideoDownloader {
         fileFormatOptions.innerHTML = '';
         
         if (this.selectedFormat === 'video') {
-            const videoFormats = [
-                { format: 'mp4', label: 'MP4' },
-                { format: 'webm', label: 'WebM' },
-                { format: '3gp', label: '3GP' },
-                { format: 'avi', label: 'AVI' },
-                { format: 'mkv', label: 'MKV' }
-            ];
+            // Get available formats from video data
+            let videoFormats = [];
+            if (this.videoData && this.videoData.formats && this.videoData.formats.length > 0) {
+                const availableExts = [...new Set(this.videoData.formats.map(f => f.ext))];
+                videoFormats = availableExts.map(ext => ({
+                    format: ext,
+                    label: ext.toUpperCase()
+                }));
+            }
+            
+            // Fallback formats if none available
+            if (videoFormats.length === 0) {
+                videoFormats = [
+                    { format: 'mp4', label: 'MP4' },
+                    { format: 'webm', label: 'WebM' },
+                    { format: 'mkv', label: 'MKV' }
+                ];
+            }
             
             videoFormats.forEach(format => {
                 const option = document.createElement('div');
@@ -408,6 +448,7 @@ class VideoDownloader {
                 throw new Error(data.error);
             }
 
+            this.videoData = data; // Store video data for quality selection
             this.showVideoInfo(data);
         } catch (error) {
             console.error('Analysis error:', error);
