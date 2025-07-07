@@ -186,12 +186,17 @@ class VideoDownloader:
                 'formats': []
             }
             
-            # Process formats with memory efficiency
+            # Process formats with memory efficiency - filter out non-video formats
             formats = info.get('formats', [])
             seen_qualities = set()
             
             for fmt in formats:
-                if not fmt.get('height'):
+                # Skip non-video formats (like storyboard/mhtml)
+                if not fmt.get('height') or fmt.get('ext') in ['mhtml', 'webp', 'jpg']:
+                    continue
+                    
+                # Skip audio-only formats when processing video formats
+                if fmt.get('acodec') != 'none' and fmt.get('vcodec') == 'none':
                     continue
                     
                 height = fmt.get('height')
@@ -209,7 +214,9 @@ class VideoDownloader:
                     'width': fmt.get('width'),
                     'ext': fmt.get('ext', 'mp4'),
                     'filesize': fmt.get('filesize'),
-                    'quality': quality_key
+                    'quality': quality_key,
+                    'vcodec': fmt.get('vcodec', 'unknown'),
+                    'acodec': fmt.get('acodec', 'unknown')
                 }
                 
                 video_info['formats'].append(format_info)
@@ -269,11 +276,19 @@ class VideoDownloader:
                             'preferredcodec': file_format,
                         }]
                 else:
-                    if format_id and format_id != 'best' and format_id != 'best[height<=720]':
-                        # Try specific format first, then fallback
-                        ydl_opts['format'] = f'{format_id}/best[height<=720]/best'
+                    # Enhanced format selection to prevent JSON downloads
+                    if format_id and format_id not in ['best', 'best[height<=720]']:
+                        # Try specific format with video+audio combination
+                        ydl_opts['format'] = f'{format_id}+bestaudio[ext=m4a]/best[height<=720]+bestaudio/best'
                     else:
-                        ydl_opts['format'] = 'best[height<=720][ext=mp4]/best[height<=720]/best'
+                        # Default to best available video with audio
+                        ydl_opts['format'] = 'best[ext=mp4][height<=720]/best[height<=720]/best'
+                    
+                    # Ensure we don't download info-only formats
+                    ydl_opts['skip_download'] = False
+                    ydl_opts['writeinfojson'] = False
+                    ydl_opts['writesubtitles'] = False
+                    ydl_opts['writeautomaticsub'] = False
                 
                 # Add progress hook
                 if progress_hook:
