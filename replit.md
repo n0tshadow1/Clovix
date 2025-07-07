@@ -126,7 +126,7 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### July 07, 2025 - Download Fixes & Mobile Optimization
+### July 07, 2025 - Critical Download & Mobile UI Fixes
 - **Complete rebranding from YTdown to Clovix**
 - Updated website name throughout all templates and components
 - Added custom SVG logo with circular design and download arrow
@@ -189,6 +189,12 @@ Preferred communication style: Simple, everyday language.
 - Streamlined interface for cleaner, more focused design
 - Enhanced tab hover states with subtle lift animations
 - Improved overall visual hierarchy and spacing
+- **CRITICAL: Fixed persistent "Download not found" errors with active tracking system**
+- **CRITICAL: Fixed JSON file downloads by implementing proper video format filtering**
+- **CRITICAL: Fixed mobile button styling inconsistencies (box vs circle shapes)**
+- Enhanced download system with proper file copying and cleanup
+- Improved video codec detection to prevent metadata-only downloads
+- Added comprehensive mobile button styling with cross-browser compatibility
 
 ### July 06, 2025 - UI/UX Consistency & Mobile Optimization
 - **Made project fully compatible with Vercel hosting platform**

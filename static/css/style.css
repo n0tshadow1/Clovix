@@ -1135,11 +1135,32 @@ footer .container {
     }
     
     .input-group .btn {
-        border-radius: 8px;
+        border-radius: 8px !important;
         padding: 0.75rem 1rem;
         font-size: 0.9rem;
         width: 100%;
         margin-top: 0.5rem;
+    }
+    
+    /* Fix button border radius consistency on mobile */
+    .btn,
+    .analyze-btn,
+    .btn-youtube,
+    .btn-instagram,
+    .btn-facebook,
+    .btn-twitter,
+    .btn-tiktok,
+    .btn-other,
+    button {
+        border-radius: 8px !important;
+        -webkit-border-radius: 8px !important;
+        -moz-border-radius: 8px !important;
+        -ms-border-radius: 8px !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        box-shadow: none !important;
+        outline: none !important;
     }
     
     .input-group-text {

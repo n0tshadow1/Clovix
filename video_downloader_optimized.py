@@ -298,13 +298,21 @@ class VideoDownloader:
                     ydl.download([url])
                 
                 # Find downloaded file
-                files = os.listdir(temp_dir)
+                files = [f for f in os.listdir(temp_dir) if not f.endswith('.part')]
                 if files:
-                    file_path = os.path.join(temp_dir, files[0])
+                    # Find the largest file (actual video, not metadata)
+                    largest_file = max(files, key=lambda f: os.path.getsize(os.path.join(temp_dir, f)))
+                    file_path = os.path.join(temp_dir, largest_file)
+                    
+                    # Copy to a permanent location for download
+                    import shutil
+                    final_path = os.path.join(self.temp_dir, largest_file)
+                    shutil.copy2(file_path, final_path)
+                    
                     return {
                         'status': 'success',
-                        'file_path': file_path,
-                        'filename': files[0]
+                        'file_path': final_path,
+                        'filename': largest_file
                     }
                 else:
                     return {'error': 'No file was downloaded'}
