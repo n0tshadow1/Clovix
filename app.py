@@ -214,20 +214,33 @@ cleanup_thread.start()
 @app.route('/download_file/<download_id>')
 def download_file(download_id):
     try:
+        logging.info(f"Download request for ID: {download_id}")
         progress = download_progress.get(download_id)
-        if not progress or 'filename' not in progress:
-            return jsonify({'error': 'File not ready or not found'}), 404
+        logging.info(f"Progress data: {progress}")
+        
+        if not progress:
+            logging.error(f"No progress data found for download_id: {download_id}")
+            return jsonify({'error': 'Download not found'}), 404
+            
+        if 'filename' not in progress:
+            logging.error(f"No filename in progress data for download_id: {download_id}")
+            return jsonify({'error': 'File not ready'}), 404
         
         filename = progress['filename']
+        logging.info(f"Attempting to serve file: {filename}")
+        
         if not os.path.exists(filename):
-            return jsonify({'error': 'File not found'}), 404
+            logging.error(f"File does not exist: {filename}")
+            return jsonify({'error': 'File not found on disk'}), 404
         
         # Ensure we're not downloading JSON files
         if filename.endswith('.json') or filename.endswith('.info') or filename.endswith('.description'):
+            logging.error(f"Invalid file type: {filename}")
             return jsonify({'error': 'Invalid file type - video file not found'}), 404
         
         # Get original filename for download
         original_name = os.path.basename(filename)
+        logging.info(f"Serving file: {filename} as: {original_name}")
         
         return send_file(filename, as_attachment=True, download_name=original_name)
     
