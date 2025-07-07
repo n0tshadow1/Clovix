@@ -1214,43 +1214,43 @@ footer .container {
         object-fit: cover;
     }
     
-    /* Make format and quality selection smaller on mobile */
-    .simple-option {
-        padding: 0.4rem 0.6rem !important;
-        font-size: 0.8rem !important;
-        margin: 0.2rem !important;
+    /* Make format and quality selection smaller ONLY on mobile */
+    @media (max-width: 768px) {
+        .simple-option {
+            padding: 0.4rem 0.6rem !important;
+            font-size: 0.8rem !important;
+            margin: 0.2rem !important;
+        }
+        
+        .quality-option,
+        .file-format-option {
+            min-height: 35px !important;
+            padding: 0.4rem 0.6rem !important;
+        }
+        
+        .quality-option strong,
+        .file-format-option strong {
+            font-size: 0.85rem !important;
+        }
+        
+        .quality-option small,
+        .file-format-option small {
+            font-size: 0.7rem !important;
+        }
+        
+        /* Compact grid for mobile */
+        .quality-grid,
+        .file-format-grid {
+            gap: 0.3rem !important;
+        }
+        
+        .quality-grid .simple-option,
+        .file-format-grid .simple-option {
+            flex: 1 1 calc(50% - 0.15rem) !important;
+            min-width: 80px !important;
+        }
     }
-    
-    .quality-option,
-    .file-format-option {
-        min-height: 35px !important;
-        padding: 0.4rem 0.6rem !important;
-    }
-    
-    .quality-option strong,
-    .file-format-option strong {
-        font-size: 0.85rem !important;
-    }
-    
-    .quality-option small,
-    .file-format-option small {
-        font-size: 0.7rem !important;
-    }
-    
-    /* Compact grid for mobile */
-    .quality-grid,
-    .file-format-grid {
-        gap: 0.3rem !important;
-    }
-    
-    .quality-grid .simple-option,
-    .file-format-grid .simple-option {
-        flex: 1 1 calc(50% - 0.15rem) !important;
-        min-width: 80px !important;
-    }
-        margin-bottom: 1rem;
-        border-radius: 8px;
-    }
+}
     
     /* Download options */
     .download-options {

@@ -314,7 +314,7 @@ class VideoDownloader:
                     return {
                         'status': 'success',
                         'file_path': final_path,
-                        'filename': largest_file
+                        'filename': final_path  # Use full path as filename for download
                     }
                 else:
                     return {'error': 'No video file was downloaded'}
