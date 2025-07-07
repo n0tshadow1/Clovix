@@ -1432,6 +1432,7 @@ footer .container {
 .download-progress-header {
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     margin-bottom: 1.5rem;
 }
 
