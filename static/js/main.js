@@ -352,14 +352,21 @@ class VideoDownloader {
 
     updateProgress(percent, status) {
         const progressBar = document.getElementById('progress-bar');
+        const percentageElement = document.getElementById('progress-percentage');
         const statusElement = document.getElementById('download-status');
         
         progressBar.style.width = `${percent}%`;
-        progressBar.textContent = `${Math.round(percent)}%`;
+        if (percentageElement) {
+            percentageElement.textContent = `${Math.round(percent)}%`;
+        }
         statusElement.textContent = status;
 
+        // Hide spinner when complete
         if (percent >= 100) {
-            progressBar.classList.remove('progress-bar-animated');
+            const spinner = document.querySelector('.download-spinner');
+            if (spinner) {
+                spinner.style.display = 'none';
+            }
         }
     }
 

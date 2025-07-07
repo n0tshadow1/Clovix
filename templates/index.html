@@ -300,81 +300,61 @@
                 </div>
 
                 <!-- Download Progress -->
-                <div id="download-progress" style="display: none;">
-                    <h5>
-                        <i class="fas fa-download me-2"></i>
-                        Download Progress
-                    </h5>
-                    <div class="progress mb-3">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
-                             id="progress-bar" role="progressbar" style="width: 0%">
-                            0%
+                <div id="download-progress" class="download-progress-container" style="display: none;">
+                    <div class="download-progress-card">
+                        <div class="download-progress-header">
+                            <div class="download-progress-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="download-icon">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                                    <path d="M8 12l4 4l4-4" stroke="currentColor" stroke-width="2" fill="none"/>
+                                </svg>
+                            </div>
+                            <h5 class="download-progress-title">Download Progress</h5>
                         </div>
-                    </div>
-                    <p id="download-status">Preparing download...</p>
-                    <div id="download-complete" style="display: none;">
-                        <div class="alert alert-success">
-                            <i class="fas fa-check-circle me-2"></i>
-                            Download completed successfully!
-                            <a href="#" id="download-link" class="btn btn-sm btn-outline-success ms-2">
-                                <i class="fas fa-download me-1"></i>
-                                Download File
-                            </a>
+                        
+                        <div class="download-progress-content">
+                            <div class="progress-container">
+                                <div class="progress-bar-wrapper">
+                                    <div class="progress-bar-track">
+                                        <div class="progress-bar-fill" id="progress-bar" style="width: 0%">
+                                            <div class="progress-bar-glow"></div>
+                                        </div>
+                                    </div>
+                                    <div class="progress-percentage" id="progress-percentage">0%</div>
+                                </div>
+                            </div>
+                            
+                            <div class="download-status-container">
+                                <div class="download-status-text" id="download-status">Preparing download...</div>
+                                <div class="download-spinner">
+                                    <div class="spinner"></div>
+                                </div>
+                            </div>
+                            
+                            <div id="download-complete" class="download-complete-container" style="display: none;">
+                                <div class="download-success">
+                                    <div class="success-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                            <circle cx="12" cy="12" r="10" fill="#22c55e"/>
+                                            <path d="M8 12l2 2 4-4" stroke="white" stroke-width="2" fill="none"/>
+                                        </svg>
+                                    </div>
+                                    <div class="success-text">Download completed successfully!</div>
+                                </div>
+                                <a href="#" id="download-link" class="download-complete-btn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                        <path d="M8 12l4 4l4-4" stroke="currentColor" stroke-width="2" fill="none"/>
+                                        <path d="M12 2v10" stroke="currentColor" stroke-width="2" fill="none"/>
+                                    </svg>
+                                    Download File
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Quick Platform Access -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-rocket me-2"></i>
-                    Quick Platform Access
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-4 col-sm-6">
-                        <button class="btn btn-youtube w-100 platform-quick-btn" data-platform="youtube">
-                            <i class="fab fa-youtube me-2"></i>
-                            YouTube
-                        </button>
-                    </div>
-                    <div class="col-md-4 col-sm-6">
-                        <button class="btn btn-instagram w-100 platform-quick-btn" data-platform="instagram">
-                            <i class="fab fa-instagram me-2"></i>
-                            Instagram
-                        </button>
-                    </div>
-                    <div class="col-md-4 col-sm-6">
-                        <button class="btn btn-facebook w-100 platform-quick-btn" data-platform="facebook">
-                            <i class="fab fa-facebook me-2"></i>
-                            Facebook
-                        </button>
-                    </div>
-                    <div class="col-md-4 col-sm-6">
-                        <button class="btn btn-twitter w-100 platform-quick-btn" data-platform="twitter">
-                            <i class="fab fa-twitter me-2"></i>
-                            Twitter
-                        </button>
-                    </div>
-                    <div class="col-md-4 col-sm-6">
-                        <button class="btn btn-tiktok w-100 platform-quick-btn" data-platform="tiktok">
-                            <i class="fab fa-tiktok me-2"></i>
-                            TikTok
-                        </button>
-                    </div>
-                    <div class="col-md-4 col-sm-6">
-                        <button class="btn btn-other w-100 platform-quick-btn" data-platform="other">
-                            <i class="fas fa-globe me-2"></i>
-                            Other
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Features Card -->
         <div class="card">
@@ -483,39 +463,8 @@ function testAnalysis() {
     });
 }
 
-// Platform Quick Access Button Functionality
+// Enhanced tab hover effects
 document.addEventListener('DOMContentLoaded', function() {
-    // Add click handlers to platform quick buttons
-    const platformQuickButtons = document.querySelectorAll('.platform-quick-btn');
-    
-    platformQuickButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const platform = this.dataset.platform;
-            
-            // Show the clicked platform's brand color
-            this.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                this.style.transform = '';
-            }, 150);
-            
-            // Switch to the corresponding tab
-            const targetTab = document.getElementById(platform + '-tab');
-            if (targetTab) {
-                targetTab.click();
-                
-                // Scroll to the platform section
-                const platformSection = document.getElementById(platform + '-pane');
-                if (platformSection) {
-                    platformSection.scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'start' 
-                    });
-                }
-            }
-        });
-    });
-    
-    // Add visual feedback on hover for platform tabs
     const platformTabs = document.querySelectorAll('.nav-tabs .nav-link');
     platformTabs.forEach(tab => {
         tab.addEventListener('mouseenter', function() {
