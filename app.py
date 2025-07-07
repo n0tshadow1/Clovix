@@ -127,7 +127,12 @@ def download_video():
                         download_progress[download_id]['active'] = False  # Mark for cleanup
                     else:
                         download_progress[download_id].update(result)
-                        if 'filename' in result:
+                        if 'file_path' in result:
+                            download_progress[download_id]['status'] = 'finished'
+                            download_progress[download_id]['progress'] = 100
+                            download_progress[download_id]['filename'] = result['file_path']  # Use file_path as filename
+                            download_progress[download_id]['active'] = False  # Mark for cleanup
+                        elif 'filename' in result:
                             download_progress[download_id]['status'] = 'finished'
                             download_progress[download_id]['progress'] = 100
                             download_progress[download_id]['active'] = False  # Mark for cleanup
