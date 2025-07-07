@@ -76,9 +76,14 @@ def download_video():
         
         downloader = VideoDownloader()
         
-        # Generate unique download ID
+        # Generate unique download ID with timestamp
         download_id = str(int(time.time() * 1000))
-        download_progress[download_id] = {'progress': 0, 'status': 'starting'}
+        download_progress[download_id] = {
+            'progress': 0, 
+            'status': 'starting',
+            'timestamp': time.time(),
+            'active': True  # Mark as active to prevent cleanup
+        }
         
         def progress_hook(d):
             # Always check if download_id exists before updating
@@ -119,11 +124,13 @@ def download_video():
                     if 'error' in result:
                         download_progress[download_id]['status'] = 'error'
                         download_progress[download_id]['error'] = result['error']
+                        download_progress[download_id]['active'] = False  # Mark for cleanup
                     else:
                         download_progress[download_id].update(result)
                         if 'filename' in result:
                             download_progress[download_id]['status'] = 'finished'
                             download_progress[download_id]['progress'] = 100
+                            download_progress[download_id]['active'] = False  # Mark for cleanup
                 
             except Exception as e:
                 logging.error(f"Download thread error: {str(e)}")
@@ -131,6 +138,7 @@ def download_video():
                 if download_id in download_progress:
                     download_progress[download_id]['error'] = str(e)
                     download_progress[download_id]['status'] = 'error'
+                    download_progress[download_id]['active'] = False  # Mark for cleanup
             finally:
                 # Memory cleanup after download
                 gc.collect()
@@ -147,24 +155,26 @@ def download_video():
 
 @app.route('/download_progress/<download_id>')
 def get_download_progress(download_id):
-    # Clean up old downloads (older than 1 hour) to save memory
-    cleanup_old_downloads()
+    # Don't clean up during active downloads - only clean on startup or specific intervals
+    # cleanup_old_downloads()
     
     progress = download_progress.get(download_id, {'error': 'Download not found'})
     return jsonify(progress)
 
 def cleanup_old_downloads():
-    """Remove downloads older than 5 minutes and completed downloads older than 2 minutes"""
+    """Remove only inactive downloads that are truly old"""
     current_time = time.time()
     to_remove = []
     
     for download_id, info in download_progress.items():
-        # Remove completed downloads after 2 minutes
-        if info.get('status') in ['finished', 'error'] and current_time - info.get('timestamp', 0) > 120:
-            to_remove.append(download_id)
-        # Remove any download older than 5 minutes
-        elif current_time - info.get('timestamp', 0) > 300:
-            to_remove.append(download_id)
+        # Only clean up inactive downloads
+        if not info.get('active', False):
+            # Remove completed downloads after 5 minutes
+            if info.get('status') in ['finished', 'error'] and current_time - info.get('timestamp', 0) > 300:
+                to_remove.append(download_id)
+            # Remove any inactive download older than 10 minutes
+            elif current_time - info.get('timestamp', 0) > 600:
+                to_remove.append(download_id)
     
     for download_id in to_remove:
         download_progress.pop(download_id, None)
@@ -172,6 +182,18 @@ def cleanup_old_downloads():
     
     if to_remove:
         gc.collect()
+
+# Schedule cleanup every 10 minutes instead of every request
+import threading
+def periodic_cleanup():
+    import time
+    while True:
+        time.sleep(600)  # 10 minutes
+        cleanup_old_downloads()
+
+# Start cleanup thread
+cleanup_thread = threading.Thread(target=periodic_cleanup, daemon=True)
+cleanup_thread.start()
 
 @app.route('/download_file/<download_id>')
 def download_file(download_id):
