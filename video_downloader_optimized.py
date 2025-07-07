@@ -260,18 +260,20 @@ class VideoDownloader:
                     'writeautomaticsub': False,
                 }
                 
-                # Add format selection
+                # Add format selection with better compatibility
                 if audio_only:
-                    ydl_opts['format'] = 'bestaudio/best'
-                    ydl_opts['postprocessors'] = [{
-                        'key': 'FFmpegExtractAudio',
-                        'preferredcodec': file_format or 'mp3',
-                    }]
+                    ydl_opts['format'] = 'bestaudio[ext=m4a]/bestaudio/best'
+                    if file_format:
+                        ydl_opts['postprocessors'] = [{
+                            'key': 'FFmpegExtractAudio',
+                            'preferredcodec': file_format,
+                        }]
                 else:
-                    if format_id and format_id != 'best':
-                        ydl_opts['format'] = format_id
+                    if format_id and format_id != 'best' and format_id != 'best[height<=720]':
+                        # Try specific format first, then fallback
+                        ydl_opts['format'] = f'{format_id}/best[height<=720]/best'
                     else:
-                        ydl_opts['format'] = 'best[height<=720]/best'  # Limit quality for memory
+                        ydl_opts['format'] = 'best[height<=720][ext=mp4]/best[height<=720]/best'
                 
                 # Add progress hook
                 if progress_hook:

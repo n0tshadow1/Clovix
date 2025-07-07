@@ -126,7 +126,7 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### July 07, 2025 - RAM Optimization & Vercel YouTube Fix
+### July 07, 2025 - Download Fixes & Mobile Optimization
 - **Complete rebranding from YTdown to Clovix**
 - Updated website name throughout all templates and components
 - Added custom SVG logo with circular design and download arrow
@@ -168,6 +168,22 @@ Preferred communication style: Simple, everyday language.
 - Garbage collection after video analysis and downloads
 - Limited video format processing to essential data only
 - Optimized temporary file handling
+- **Critical Download Thread Fixes**
+- Fixed "Download not found" KeyError when downloads are cleaned up during processing
+- Added proper error handling for missing download IDs in thread operations
+- Enhanced download format selection with better fallback strategies
+- Improved format compatibility for YouTube videos
+- **Mobile Experience Optimization**
+- Completely redesigned mobile layout to minimize scrolling
+- Made input forms stack vertically on mobile for better UX
+- Reduced vertical spacing throughout the interface
+- Created compact 2x2 grid layout for features on mobile
+- Hidden non-essential elements on mobile to reduce clutter
+- Optimized button sizes and text for mobile interaction
+- **Performance Improvements**
+- Reduced download cleanup interval from 1 hour to 30 minutes
+- Enhanced memory management with automatic garbage collection
+- Improved format selection logic for better compatibility
 - **User Experience Improvements**
 - Removed quick platform access section based on user feedback
 - Streamlined interface for cleaner, more focused design

@@ -101,6 +101,15 @@ def download_video():
         def download_thread():
             try:
                 result = downloader.download_video(url, format_id, audio_only, file_format, progress_hook)
+                
+                # Check if download_id still exists (might have been cleaned up)
+                if download_id not in download_progress:
+                    download_progress[download_id] = {
+                        'status': 'downloading',
+                        'progress': 0,
+                        'timestamp': time.time()
+                    }
+                
                 if 'error' in result:
                     download_progress[download_id]['status'] = 'error'
                     download_progress[download_id]['error'] = result['error']
@@ -111,6 +120,13 @@ def download_video():
                         download_progress[download_id]['progress'] = 100
             except Exception as e:
                 logging.error(f"Download thread error: {str(e)}")
+                # Ensure download_id exists before updating
+                if download_id not in download_progress:
+                    download_progress[download_id] = {
+                        'status': 'error',
+                        'progress': 0,
+                        'timestamp': time.time()
+                    }
                 download_progress[download_id]['error'] = str(e)
                 download_progress[download_id]['status'] = 'error'
             finally:
@@ -136,13 +152,13 @@ def get_download_progress(download_id):
     return jsonify(progress)
 
 def cleanup_old_downloads():
-    """Remove downloads older than 1 hour to save memory"""
+    """Remove downloads older than 30 minutes to save memory"""
     current_time = time.time()
     to_remove = []
     
     for download_id, info in download_progress.items():
-        # If download is older than 1 hour, remove it
-        if current_time - info.get('timestamp', 0) > 3600:
+        # If download is older than 30 minutes, remove it (reduced from 1 hour)
+        if current_time - info.get('timestamp', 0) > 1800:
             to_remove.append(download_id)
     
     for download_id in to_remove:
