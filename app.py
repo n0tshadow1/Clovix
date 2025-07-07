@@ -99,9 +99,10 @@ def download_video():
                 except (ValueError, TypeError):
                     pass
             elif d['status'] == 'finished':
-                download_progress[download_id]['progress'] = 90  # Still need conversion
-                download_progress[download_id]['status'] = 'converting'
+                download_progress[download_id]['progress'] = 100
+                download_progress[download_id]['status'] = 'finished'
                 download_progress[download_id]['filename'] = d['filename']
+                logging.info(f"Download finished: {d['filename']}")
             elif d['status'] == 'error':
                 download_progress[download_id]['status'] = 'error'
                 download_progress[download_id]['error'] = d.get('error', 'Unknown error')
@@ -117,25 +118,35 @@ def download_video():
                         'timestamp': time.time()
                     }
                 
+                logging.info(f"Starting download for download_id: {download_id}")
                 result = downloader.download_video(url, format_id, audio_only, file_format, progress_hook)
+                logging.info(f"Download result: {result}")
                 
                 # Only update if download_id still exists
                 if download_id in download_progress:
                     if 'error' in result:
                         download_progress[download_id]['status'] = 'error'
                         download_progress[download_id]['error'] = result['error']
-                        download_progress[download_id]['active'] = False  # Mark for cleanup
+                        download_progress[download_id]['active'] = False
+                        logging.error(f"Download error for {download_id}: {result['error']}")
                     else:
+                        # Update with all result data
                         download_progress[download_id].update(result)
+                        download_progress[download_id]['status'] = 'finished'
+                        download_progress[download_id]['progress'] = 100
+                        download_progress[download_id]['active'] = False
+                        
+                        # Ensure filename is set properly
                         if 'file_path' in result:
-                            download_progress[download_id]['status'] = 'finished'
-                            download_progress[download_id]['progress'] = 100
-                            download_progress[download_id]['filename'] = result['file_path']  # Use file_path as filename
-                            download_progress[download_id]['active'] = False  # Mark for cleanup
+                            download_progress[download_id]['filename'] = result['file_path']
+                            logging.info(f"Download completed for {download_id}: {result['file_path']}")
                         elif 'filename' in result:
-                            download_progress[download_id]['status'] = 'finished'
-                            download_progress[download_id]['progress'] = 100
-                            download_progress[download_id]['active'] = False  # Mark for cleanup
+                            download_progress[download_id]['filename'] = result['filename']
+                            logging.info(f"Download completed for {download_id}: {result['filename']}")
+                        else:
+                            logging.error(f"No filename in result for {download_id}")
+                else:
+                    logging.error(f"Download ID {download_id} not found in progress dict")
                 
             except Exception as e:
                 logging.error(f"Download thread error: {str(e)}")
