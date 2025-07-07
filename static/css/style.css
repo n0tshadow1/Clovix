@@ -1146,6 +1146,24 @@ footer .container {
         display: none; /* Hide icon on mobile for cleaner look */
     }
     
+    /* Make sure URL input is always visible on mobile */
+    .form-control.video-url {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        width: 100% !important;
+        min-height: 50px;
+        font-size: 16px; /* Prevent zoom on iOS */
+        background: rgba(255, 255, 255, 0.1) !important;
+        border: 2px solid rgba(255, 255, 255, 0.2) !important;
+        color: white !important;
+    }
+    
+    .form-control.video-url::placeholder {
+        color: rgba(255, 255, 255, 0.6) !important;
+        font-size: 14px;
+    }
+    
     /* Hide less important elements to reduce scrolling */
     .platform-section p {
         font-size: 0.8rem;

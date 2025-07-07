@@ -81,6 +81,10 @@ def download_video():
         download_progress[download_id] = {'progress': 0, 'status': 'starting'}
         
         def progress_hook(d):
+            # Always check if download_id exists before updating
+            if download_id not in download_progress:
+                return
+                
             if d['status'] == 'downloading':
                 try:
                     percent = d.get('_percent_str', '0%').replace('%', '')
@@ -100,9 +104,7 @@ def download_video():
         # Start download in background thread
         def download_thread():
             try:
-                result = downloader.download_video(url, format_id, audio_only, file_format, progress_hook)
-                
-                # Check if download_id still exists (might have been cleaned up)
+                # Ensure download_id exists at start
                 if download_id not in download_progress:
                     download_progress[download_id] = {
                         'status': 'downloading',
@@ -110,25 +112,25 @@ def download_video():
                         'timestamp': time.time()
                     }
                 
-                if 'error' in result:
-                    download_progress[download_id]['status'] = 'error'
-                    download_progress[download_id]['error'] = result['error']
-                else:
-                    download_progress[download_id].update(result)
-                    if 'filename' in result:
-                        download_progress[download_id]['status'] = 'finished'
-                        download_progress[download_id]['progress'] = 100
+                result = downloader.download_video(url, format_id, audio_only, file_format, progress_hook)
+                
+                # Only update if download_id still exists
+                if download_id in download_progress:
+                    if 'error' in result:
+                        download_progress[download_id]['status'] = 'error'
+                        download_progress[download_id]['error'] = result['error']
+                    else:
+                        download_progress[download_id].update(result)
+                        if 'filename' in result:
+                            download_progress[download_id]['status'] = 'finished'
+                            download_progress[download_id]['progress'] = 100
+                
             except Exception as e:
                 logging.error(f"Download thread error: {str(e)}")
-                # Ensure download_id exists before updating
-                if download_id not in download_progress:
-                    download_progress[download_id] = {
-                        'status': 'error',
-                        'progress': 0,
-                        'timestamp': time.time()
-                    }
-                download_progress[download_id]['error'] = str(e)
-                download_progress[download_id]['status'] = 'error'
+                # Only update if download_id still exists
+                if download_id in download_progress:
+                    download_progress[download_id]['error'] = str(e)
+                    download_progress[download_id]['status'] = 'error'
             finally:
                 # Memory cleanup after download
                 gc.collect()
@@ -152,13 +154,16 @@ def get_download_progress(download_id):
     return jsonify(progress)
 
 def cleanup_old_downloads():
-    """Remove downloads older than 30 minutes to save memory"""
+    """Remove downloads older than 5 minutes and completed downloads older than 2 minutes"""
     current_time = time.time()
     to_remove = []
     
     for download_id, info in download_progress.items():
-        # If download is older than 30 minutes, remove it (reduced from 1 hour)
-        if current_time - info.get('timestamp', 0) > 1800:
+        # Remove completed downloads after 2 minutes
+        if info.get('status') in ['finished', 'error'] and current_time - info.get('timestamp', 0) > 120:
+            to_remove.append(download_id)
+        # Remove any download older than 5 minutes
+        elif current_time - info.get('timestamp', 0) > 300:
             to_remove.append(download_id)
     
     for download_id in to_remove:
