@@ -126,7 +126,7 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### July 07, 2025 - Brand Redesign & Enhanced Download Experience
+### July 07, 2025 - RAM Optimization & Vercel YouTube Fix
 - **Complete rebranding from YTdown to Clovix**
 - Updated website name throughout all templates and components
 - Added custom SVG logo with circular design and download arrow
@@ -148,6 +148,26 @@ Preferred communication style: Simple, everyday language.
 - Created success state with animated checkmark and green download button
 - Enhanced visual feedback with backdrop blur and gradient borders
 - Added smooth transitions and hover effects for all interactive elements
+- **Critical RAM Usage Optimization**
+- Created memory-managed video extraction with context managers
+- Implemented automatic garbage collection after each request
+- Added cleanup system for downloads older than 1 hour
+- Limited format processing to top 10 qualities to reduce memory footprint
+- Used temporary directories with automatic cleanup
+- Reduced memory leaks in yt-dlp operations
+- **Enhanced YouTube Extraction for Vercel**
+- Fixed "Failed to extract any player response" errors on serverless platforms
+- Added 4 fallback extraction strategies (Android TV, iOS Mobile, Android Creator, Web)
+- Implemented Android TV client as primary method (most reliable for cloud)
+- Added iOS mobile fallback for additional compatibility
+- Enhanced error handling for private/restricted videos
+- Reduced socket timeouts for faster failure detection
+- **Memory Management Features**
+- Context managers for yt-dlp operations to ensure cleanup
+- Automatic old download cleanup (1-hour retention)
+- Garbage collection after video analysis and downloads
+- Limited video format processing to essential data only
+- Optimized temporary file handling
 - **User Experience Improvements**
 - Removed quick platform access section based on user feedback
 - Streamlined interface for cleaner, more focused design

@@ -49,29 +49,31 @@ class VideoDownloader:
                     'quiet': True,
                     'no_warnings': True,
                     'extract_flat': False,
+                    'writethumbnail': False,
+                    'writeinfojson': False,
+                    'writesubtitles': False,
+                    'writeautomaticsub': False,
+                    'ignoreerrors': False,
                     'user_agent': selected_ua,
-                    'socket_timeout': 60,
-                    'retries': 3,
-                    'fragment_retries': 3,
+                    'socket_timeout': 30,
+                    'retries': 2,
+                    'fragment_retries': 2,
                     'extractor_args': {
                         'youtube': {
-                            'skip': ['hls', 'dash'],
-                            'player_skip': ['configs'],
-                            'innertube_host': 'www.youtube.com',
-                            'innertube_key': None,
-                            'player_client': ['android', 'web'],
+                            'skip': ['hls'],
+                            'player_client': ['android_creator', 'android', 'web_creator', 'web'],
+                            'innertube_host': 'studio.youtube.com',
+                            'player_skip': ['js', 'configs'],
+                            'check_formats': None,
                         }
                     },
                     'http_headers': {
                         'User-Agent': selected_ua,
-                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                         'Accept-Language': 'en-US,en;q=0.9',
-                        'Accept-Encoding': 'gzip, deflate, br',
-                        'DNT': '1',
+                        'Accept-Encoding': 'gzip, deflate',
                         'Connection': 'keep-alive',
                         'Upgrade-Insecure-Requests': '1',
-                        'Sec-Fetch-Dest': 'document',
-                        'Sec-Fetch-Mode': 'navigate',
                         'Sec-Fetch-Site': 'none',
                         'Cache-Control': 'max-age=0',
                     },
@@ -148,7 +150,51 @@ class VideoDownloader:
     def _get_youtube_info_basic(self, url):
         """Basic YouTube extraction with minimal options"""
         try:
-            # Very basic extraction with mobile user agent
+            # Ultra-light extraction for maximum compatibility
+            fallback_configs = [
+                # Android TV (most reliable for serverless)
+                {
+                    'quiet': True,
+                    'no_warnings': True,
+                    'writethumbnail': False,
+                    'writeinfojson': False,
+                    'extract_flat': False,
+                    'user_agent': 'com.google.android.youtube/17.36.4 (Linux; U; Android 12; TV) gzip',
+                    'extractor_args': {
+                        'youtube': {
+                            'player_client': ['android_tv'],
+                            'skip': ['hls', 'dash'],
+                        }
+                    }
+                },
+                # iOS fallback
+                {
+                    'quiet': True,
+                    'no_warnings': True,
+                    'writethumbnail': False,
+                    'writeinfojson': False,
+                    'extract_flat': False,
+                    'user_agent': 'com.google.ios.youtube/17.36.4 (iPhone14,2; U; CPU iOS 15_6 like Mac OS X)',
+                    'extractor_args': {
+                        'youtube': {
+                            'player_client': ['ios'],
+                        }
+                    }
+                }
+            ]
+            
+            for i, ydl_opts in enumerate(fallback_configs):
+                try:
+                    logging.info(f"Trying basic extraction strategy {i+1}")
+                    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                        info = ydl.extract_info(url, download=False)
+                        if info:
+                            return self._process_video_info(info)
+                except Exception as e:
+                    logging.warning(f"Basic strategy {i+1} failed: {str(e)}")
+                    continue
+            
+            # Final ultra-minimal attempt
             ydl_opts = {
                 'quiet': True,
                 'no_warnings': True,

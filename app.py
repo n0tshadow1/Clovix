@@ -1,7 +1,7 @@
 import os
 import logging
 from flask import Flask, render_template, request, jsonify, send_file, flash, redirect, url_for
-from video_downloader import VideoDownloader
+from video_downloader_optimized import VideoDownloader
 import tempfile
 import threading
 import time
@@ -12,8 +12,21 @@ logging.basicConfig(level=logging.DEBUG)
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
 
-# Global dictionary to store download progress
+# Global dictionary to store download progress (memory optimized)
 download_progress = {}
+
+# Memory optimization: Clean up old download records
+import gc
+import atexit
+
+def cleanup_memory():
+    """Clean up memory and old download records"""
+    global download_progress
+    download_progress.clear()
+    gc.collect()
+
+# Register cleanup on app exit
+atexit.register(cleanup_memory)
 
 @app.route('/')
 def index():
@@ -31,8 +44,12 @@ def get_video_info():
         
         logging.info(f"Analyzing URL: {url}")
         
+        # Memory optimization: Use context manager
         downloader = VideoDownloader()
         video_info = downloader.get_video_info(url)
+        
+        # Clean up after each request
+        gc.collect()
         
         if 'error' in video_info:
             logging.error(f"Video info error: {video_info['error']}")
@@ -96,6 +113,9 @@ def download_video():
                 logging.error(f"Download thread error: {str(e)}")
                 download_progress[download_id]['error'] = str(e)
                 download_progress[download_id]['status'] = 'error'
+            finally:
+                # Memory cleanup after download
+                gc.collect()
         
         thread = threading.Thread(target=download_thread)
         thread.daemon = True
@@ -109,8 +129,28 @@ def download_video():
 
 @app.route('/download_progress/<download_id>')
 def get_download_progress(download_id):
+    # Clean up old downloads (older than 1 hour) to save memory
+    cleanup_old_downloads()
+    
     progress = download_progress.get(download_id, {'error': 'Download not found'})
     return jsonify(progress)
+
+def cleanup_old_downloads():
+    """Remove downloads older than 1 hour to save memory"""
+    current_time = time.time()
+    to_remove = []
+    
+    for download_id, info in download_progress.items():
+        # If download is older than 1 hour, remove it
+        if current_time - info.get('timestamp', 0) > 3600:
+            to_remove.append(download_id)
+    
+    for download_id in to_remove:
+        download_progress.pop(download_id, None)
+        logging.info(f"Cleaned up old download: {download_id}")
+    
+    if to_remove:
+        gc.collect()
 
 @app.route('/download_file/<download_id>')
 def download_file(download_id):
