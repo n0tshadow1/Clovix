@@ -126,6 +126,30 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### July 07, 2025 - Brand Redesign & Platform Quick Access
+- **Complete rebranding from YTdown to Clovix**
+- Updated website name throughout all templates and components
+- Added custom SVG logo with circular design and download arrow
+- Updated page titles and meta information
+- **Platform Quick Access Buttons**
+- Added social media platform buttons section below main interface
+- Created 6 platform-specific buttons with brand colors (YouTube, Instagram, Facebook, Twitter, TikTok, Other)
+- Implemented smooth click animations and hover effects
+- Added functionality to switch tabs and scroll to platform sections
+- **Enhanced Tab Color Branding**
+- Made platform tabs match their respective brand colors when active
+- YouTube: Red gradient matching YouTube branding
+- Instagram: Purple gradient matching Instagram branding
+- Facebook: Blue gradient matching Facebook branding
+- Twitter: Light blue gradient matching Twitter branding
+- TikTok: Black gradient matching TikTok branding
+- Other: Grey gradient for versatility
+- **Interactive Button Animations**
+- Added shimmer effects on platform button hover
+- Implemented transform scaling on click for visual feedback
+- Enhanced tab hover states with subtle lift animations
+- Added smooth transitions between platform switches
+
 ### July 06, 2025 - UI/UX Consistency & Mobile Optimization
 - **Made project fully compatible with Vercel hosting platform**
 - Created vercel.json configuration for serverless deployment
