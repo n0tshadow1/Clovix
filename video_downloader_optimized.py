@@ -157,10 +157,15 @@ class VideoDownloader:
                 elif "age-restricted" in error_msg or "age gate" in error_msg:
                     return {'error': 'This video is age-restricted and cannot be accessed.'}
                 elif i == len(strategies) - 1:
-                    # Last strategy failed
-                    return {
-                        'error': f'Unable to access video after trying all methods. This may be due to:\n• YouTube bot detection on serverless platforms\n• Regional restrictions\n• Video access limitations\n\nTry waiting a few minutes and using a different video URL.'
-                    }
+                    # Last strategy failed - check for bot detection
+                    if "sign in to confirm" in error_msg or "not a bot" in error_msg:
+                        return {
+                            'error': '🤖 YouTube is asking for verification. This happens on cloud hosting platforms.\n\n✅ Solutions:\n• Try a different YouTube video\n• Wait a few minutes and try again\n• Use videos from Instagram, Facebook, TikTok instead\n\nOther platforms work perfectly!'
+                        }
+                    else:
+                        return {
+                            'error': 'Unable to access this video. This may be due to:\n• Regional restrictions\n• Video privacy settings\n• Platform limitations\n\nTry a different video URL.'
+                        }
         
         return {'error': 'Failed to extract video information after all attempts'}
     

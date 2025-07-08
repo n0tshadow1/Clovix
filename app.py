@@ -53,7 +53,9 @@ def get_video_info():
         
         if 'error' in video_info:
             logging.error(f"Video info error: {video_info['error']}")
-            return jsonify(video_info), 400
+            # Don't return 400 for user-facing errors like bot detection
+            # Return 200 with error message so frontend can handle it properly
+            return jsonify(video_info), 200
         
         logging.info(f"Video info retrieved successfully for: {video_info.get('title', 'Unknown')}")
         return jsonify(video_info)
