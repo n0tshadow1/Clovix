@@ -124,36 +124,46 @@ def download_video():
                 result = downloader.download_video(url, format_id, audio_only, file_format, progress_hook)
                 logging.info(f"Download result: {result}")
                 
-                # Only update if download_id still exists and result is not None
-                if download_id in download_progress:
-                    if result is None:
-                        download_progress[download_id]['status'] = 'error'
-                        download_progress[download_id]['error'] = 'Download failed - no result returned'
-                        download_progress[download_id]['active'] = False
-                        logging.error(f"Download failed - no result for {download_id}")
-                    elif isinstance(result, dict) and 'error' in result:
-                        download_progress[download_id]['status'] = 'error'
-                        download_progress[download_id]['error'] = result['error']
-                        download_progress[download_id]['active'] = False
-                        logging.error(f"Download error for {download_id}: {result['error']}")
-                    elif isinstance(result, dict):
-                        # Update with all result data
-                        download_progress[download_id].update(result)
-                        download_progress[download_id]['status'] = 'finished'
-                        download_progress[download_id]['progress'] = 100
-                        download_progress[download_id]['active'] = False
-                        
-                        # Ensure filename is set properly
-                        if 'file_path' in result:
-                            download_progress[download_id]['filename'] = result['file_path']
-                            logging.info(f"Download completed for {download_id}: {result['file_path']}")
-                        elif 'filename' in result:
-                            download_progress[download_id]['filename'] = result['filename']
-                            logging.info(f"Download completed for {download_id}: {result['filename']}")
-                        else:
-                            logging.error(f"No filename in result for {download_id}")
+                # Always ensure download_id exists before updating
+                if download_id not in download_progress:
+                    logging.warning(f"Download ID {download_id} was missing, recreating entry")
+                    download_progress[download_id] = {
+                        'status': 'processing',
+                        'progress': 0,
+                        'timestamp': time.time(),
+                        'active': True
+                    }
+                
+                if result is None:
+                    download_progress[download_id]['status'] = 'error'
+                    download_progress[download_id]['error'] = 'Download failed - no result returned'
+                    download_progress[download_id]['active'] = False
+                    logging.error(f"Download failed - no result for {download_id}")
+                elif isinstance(result, dict) and 'error' in result:
+                    download_progress[download_id]['status'] = 'error'
+                    download_progress[download_id]['error'] = result['error']
+                    download_progress[download_id]['active'] = False
+                    logging.error(f"Download error for {download_id}: {result['error']}")
+                elif isinstance(result, dict):
+                    # Update with all result data
+                    download_progress[download_id].update(result)
+                    download_progress[download_id]['status'] = 'finished'
+                    download_progress[download_id]['progress'] = 100
+                    download_progress[download_id]['active'] = False
+                    
+                    # Ensure filename is set properly
+                    if 'file_path' in result:
+                        download_progress[download_id]['filename'] = result['file_path']
+                        logging.info(f"Download completed for {download_id}: {result['file_path']}")
+                    elif 'filename' in result:
+                        download_progress[download_id]['filename'] = result['filename']
+                        logging.info(f"Download completed for {download_id}: {result['filename']}")
+                    else:
+                        logging.error(f"No filename in result for {download_id}")
                 else:
-                    logging.error(f"Download ID {download_id} not found in progress dict")
+                    download_progress[download_id]['status'] = 'error'
+                    download_progress[download_id]['error'] = 'Unknown download result format'
+                    download_progress[download_id]['active'] = False
                 
             except Exception as e:
                 logging.error(f"Download thread error: {str(e)}")
@@ -178,8 +188,22 @@ def download_video():
 
 @app.route('/download_progress/<download_id>')
 def get_download_progress(download_id):
-    # Don't clean up during active downloads - only clean on startup or specific intervals
-    # cleanup_old_downloads()
+    # Never clean up during progress requests to avoid race conditions
+    
+    if download_id not in download_progress:
+        # If download not found, check if it's very recent and recreate
+        try:
+            timestamp = int(download_id) / 1000.0
+            if time.time() - timestamp < 60:  # If less than 1 minute old
+                download_progress[download_id] = {
+                    'status': 'starting',
+                    'progress': 0,
+                    'timestamp': timestamp,
+                    'active': True
+                }
+                logging.info(f"Recreated missing download entry for {download_id}")
+        except:
+            pass
     
     progress = download_progress.get(download_id, {'error': 'Download not found'})
     return jsonify(progress)
