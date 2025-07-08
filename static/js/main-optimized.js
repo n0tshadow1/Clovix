@@ -153,24 +153,29 @@ class VideoDownloader {
         qualitySelect.innerHTML = '<option value="">Best Available</option>';
         formatSelect.innerHTML = '';
 
-        // Add all quality options that actually work - FIXED FOR EXACT QUALITY
-        const allQualities = [
-            { value: 'best', text: '4K (2160p) - Best Available' },
-            { value: 'best[height<=1440]', text: '1440p (2K) - Excellent' },
-            { value: 'best[height<=1080]', text: '1080p (Full HD) - Great' },
-            { value: 'best[height<=720]', text: '720p (HD) - Good' },
-            { value: 'best[height<=480]', text: '480p (SD) - Standard' },
-            { value: 'worst[height>=360][height<=360]', text: '360p - Basic' },
-            { value: 'worst[height>=240][height<=240]', text: '240p - Low' },
-            { value: 'worst', text: '144p - Minimal' }
-        ];
+        // Use actual format IDs from video data - REAL QUALITY SELECTION
+        const sortedFormats = this.videoData.formats.sort((a, b) => (b.height || 0) - (a.height || 0));
         
-        allQualities.forEach(quality => {
+        sortedFormats.forEach(format => {
             const option = document.createElement('option');
-            option.value = quality.value;
-            option.textContent = quality.text;
+            option.value = format.format_id;
+            option.textContent = `${format.quality} (${format.height}p) - ${format.ext.toUpperCase()}`;
             qualitySelect.appendChild(option);
         });
+        
+        // Add fallback options only if no real formats
+        if (sortedFormats.length === 0) {
+            const fallbacks = [
+                { value: 'best', text: 'Best Available' },
+                { value: 'worst', text: 'Lowest Quality' }
+            ];
+            fallbacks.forEach(quality => {
+                const option = document.createElement('option');
+                option.value = quality.value;
+                option.textContent = quality.text;
+                qualitySelect.appendChild(option);
+            });
+        }
 
         if (this.selectedType === 'video') {
             // Add format conversion options for video
