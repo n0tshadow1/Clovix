@@ -535,17 +535,30 @@ class VideoDownloader:
             else:
                 ydl_opts['format'] = 'best/worst'
             
-            # Enable format conversion when requested with fallback
+            # Simple approach: Use command line conversion with FFmpeg
             if target_format and not audio_only and target_format != 'mp4':
-                # Add conversion for specific formats
                 if target_format in ['3gp', 'mkv', 'webm', 'avi', 'flv']:
                     try:
-                        ydl_opts['postprocessors'] = [{
-                            'key': 'FFmpegVideoConvertor',
-                            'preferedformat': target_format,
-                        }]
-                        # Add ffmpeg path - use the Nix store path
-                        ydl_opts['ffmpeg_location'] = '/nix/store/3zc5jbvqzrn8zmva4fx5p0nh4yy03wk4-ffmpeg-6.1.1-bin/bin/ffmpeg'
+                        # Set FFmpeg path for yt-dlp
+                        ffmpeg_path = '/nix/store/3zc5jbvqzrn8zmva4fx5p0nh4yy03wk4-ffmpeg-6.1.1-bin/bin/ffmpeg'
+                        
+                        # Test if FFmpeg is working
+                        import subprocess
+                        result = subprocess.run([ffmpeg_path, '-version'], capture_output=True, text=True)
+                        if result.returncode == 0:
+                            logging.info("FFmpeg is working correctly")
+                            
+                            # Set up yt-dlp with proper FFmpeg path
+                            ydl_opts['ffmpeg_location'] = ffmpeg_path
+                            ydl_opts['postprocessors'] = [{
+                                'key': 'FFmpegVideoConvertor',
+                                'preferedformat': target_format,
+                            }]
+                            
+                            logging.info(f"Format conversion set up for {target_format}")
+                        else:
+                            logging.error(f"FFmpeg test failed: {result.stderr}")
+                            
                     except Exception as e:
                         logging.warning(f"Format conversion setup failed: {e}")
                         # Continue without conversion
