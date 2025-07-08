@@ -296,9 +296,17 @@ class VideoDownloader {
     }
 
     showDownloadProgress() {
-        document.getElementById('download-progress').style.display = 'block';
-        document.querySelector('.download-spinner').style.display = 'flex';
-        document.getElementById('download-complete').style.display = 'none';
+        const progressDiv = document.getElementById('download-progress');
+        const completeDiv = document.getElementById('download-complete');
+        
+        if (progressDiv) progressDiv.style.display = 'block';
+        if (completeDiv) completeDiv.style.display = 'none';
+        
+        // Reset progress bar
+        const progressBar = document.getElementById('progress-bar');
+        const progressPercentage = document.getElementById('progress-percentage');
+        if (progressBar) progressBar.style.width = '0%';
+        if (progressPercentage) progressPercentage.textContent = '0%';
     }
 
     hideDownloadProgress() {
@@ -433,13 +441,19 @@ class VideoDownloader {
             } catch (error) {
                 console.error('Progress tracking error:', error);
                 clearInterval(this.progressInterval);
+                this.showError('Download tracking failed. Please try again.');
+                this.hideDownloadProgress();
             }
         }, 500);
     }
 
     showDownloadComplete() {
-        document.getElementById('download-complete').style.display = 'block';
-        document.querySelector('.download-spinner').style.display = 'none';
+        const completeDiv = document.getElementById('download-complete');
+        if (completeDiv) completeDiv.style.display = 'block';
+        
+        // Update status text
+        const statusElement = document.getElementById('download-status');
+        if (statusElement) statusElement.textContent = 'Download completed!';
     }
 
     triggerFileDownload() {
@@ -492,5 +506,5 @@ document.addEventListener('DOMContentLoaded', () => {
 // Handle unhandled promise rejections
 window.addEventListener('unhandledrejection', (event) => {
     console.error('Unhandled promise rejection:', event.reason);
-    event.preventDefault();
+    // Don't prevent default to avoid masking real errors
 });

@@ -216,9 +216,17 @@ class VideoDownloader:
         if 'v=' in url:
             video_id = url.split('v=')[1].split('&')[0]
         
+        # Try to get basic title with minimal command
+        try:
+            title_cmd = ['yt-dlp', '--get-title', '--quiet', '--no-warnings', '--no-check-certificate', url]
+            result = subprocess.run(title_cmd, capture_output=True, text=True, timeout=8)
+            title = result.stdout.strip() if result.returncode == 0 and result.stdout.strip() else 'Video'
+        except:
+            title = 'Video'
+        
         return {
-            'title': 'YouTube Video',
-            'uploader': 'YouTube',
+            'title': title,
+            'uploader': 'Unknown',
             'duration': 'Unknown',
             'thumbnail': f'https://img.youtube.com/vi/{video_id}/maxresdefault.jpg',
             'view_count': 0,
