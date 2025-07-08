@@ -324,12 +324,7 @@ class VideoDownloader {
         }
         statusElement.textContent = status;
 
-        if (percent >= 100) {
-            const spinner = document.querySelector('.download-spinner');
-            if (spinner) {
-                spinner.style.display = 'none';
-            }
-        }
+        // Progress complete - no spinner to hide
     }
 
     async analyzeVideo(url) {

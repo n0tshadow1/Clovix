@@ -1684,24 +1684,7 @@ footer .container {
     font-size: 0.95rem;
 }
 
-.download-spinner {
-    display: flex;
-    align-items: center;
-}
-
-.spinner {
-    width: 20px;
-    height: 20px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top: 2px solid #3b82f6;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+/* Removed purple spinner - no longer needed */
 
 .download-complete-container {
     text-align: center;
