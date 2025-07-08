@@ -246,12 +246,20 @@ class VideoDownloader:
                 else:
                     ydl_opts['format'] = 'best[height<=1080]/best'
                 
-                # FIXED: Format conversion now works with FFmpeg installed
+                # FIXED: Enhanced format conversion with proper codec settings
                 if file_format and file_format not in ['mp4']:
-                    ydl_opts['postprocessors'] = [{
-                        'key': 'FFmpegVideoConvertor',
-                        'preferedformat': file_format,
-                    }]
+                    if file_format == '3gp':
+                        ydl_opts['postprocessors'] = [{
+                            'key': 'FFmpegVideoConvertor',
+                            'preferedformat': '3gp',
+                            'preferedcodec': 'h264',
+                            'preferredquality': '5',
+                        }]
+                    elif file_format in ['mkv', 'webm', 'avi']:
+                        ydl_opts['postprocessors'] = [{
+                            'key': 'FFmpegVideoConvertor',
+                            'preferedformat': file_format,
+                        }]
                     logging.info(f"Converting to format: {file_format}")
                 else:
                     logging.info(f"Downloading as MP4")
