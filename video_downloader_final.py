@@ -357,10 +357,14 @@ class VideoDownloader:
                 # Find downloaded file
                 for file in os.listdir(self.temp_dir):
                     if not file.startswith('.') and os.path.isfile(os.path.join(self.temp_dir, file)):
-                        return os.path.join(self.temp_dir, file)
+                        file_path = os.path.join(self.temp_dir, file)
+                        return {
+                            'file_path': file_path,
+                            'filename': file
+                        }
                         
             logging.error(f"Download failed: {result.stderr}")
-            return None
+            return {'error': f'Download failed: {result.stderr}'}
             
         except Exception as e:
             logging.error(f"Download failed: {str(e)}")

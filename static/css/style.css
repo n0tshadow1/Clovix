@@ -740,8 +740,8 @@ body::after {
     }
 }
 
-/* Format type selection (Video/Audio) */
-.simple-option[data-step="format"] {
+/* Format type selection (Video/Audio) - Desktop */
+.format-type-option {
     padding: 1rem;
     text-align: center;
     background: linear-gradient(145deg, rgba(59, 130, 246, 0.1), rgba(15, 23, 42, 0.9));

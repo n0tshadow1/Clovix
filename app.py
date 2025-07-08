@@ -124,14 +124,19 @@ def download_video():
                 result = downloader.download_video(url, format_id, audio_only, file_format, progress_hook)
                 logging.info(f"Download result: {result}")
                 
-                # Only update if download_id still exists
+                # Only update if download_id still exists and result is not None
                 if download_id in download_progress:
-                    if 'error' in result:
+                    if result is None:
+                        download_progress[download_id]['status'] = 'error'
+                        download_progress[download_id]['error'] = 'Download failed - no result returned'
+                        download_progress[download_id]['active'] = False
+                        logging.error(f"Download failed - no result for {download_id}")
+                    elif isinstance(result, dict) and 'error' in result:
                         download_progress[download_id]['status'] = 'error'
                         download_progress[download_id]['error'] = result['error']
                         download_progress[download_id]['active'] = False
                         logging.error(f"Download error for {download_id}: {result['error']}")
-                    else:
+                    elif isinstance(result, dict):
                         # Update with all result data
                         download_progress[download_id].update(result)
                         download_progress[download_id]['status'] = 'finished'
