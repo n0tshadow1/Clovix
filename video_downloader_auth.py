@@ -535,14 +535,20 @@ class VideoDownloader:
             else:
                 ydl_opts['format'] = 'best/worst'
             
-            # Enable format conversion when requested
-            if target_format and not audio_only:
+            # Enable format conversion when requested with fallback
+            if target_format and not audio_only and target_format != 'mp4':
                 # Add conversion for specific formats
                 if target_format in ['3gp', 'mkv', 'webm', 'avi', 'flv']:
-                    ydl_opts['postprocessors'] = [{
-                        'key': 'FFmpegVideoConvertor',
-                        'preferedformat': target_format,
-                    }]
+                    try:
+                        ydl_opts['postprocessors'] = [{
+                            'key': 'FFmpegVideoConvertor',
+                            'preferedformat': target_format,
+                        }]
+                        # Add ffmpeg path - use the Nix store path
+                        ydl_opts['ffmpeg_location'] = '/nix/store/3zc5jbvqzrn8zmva4fx5p0nh4yy03wk4-ffmpeg-6.1.1-bin/bin/ffmpeg'
+                    except Exception as e:
+                        logging.warning(f"Format conversion setup failed: {e}")
+                        # Continue without conversion
             
             # Download
             with self.memory_managed_extraction(ydl_opts) as ydl:
