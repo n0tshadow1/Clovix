@@ -93,8 +93,38 @@ class VideoDownloader {
         this.hideError();
         document.getElementById('loading').style.display = 'none';
         
+        // Populate video information
+        const thumbnail = document.getElementById('video-thumbnail');
+        const title = document.getElementById('video-title');
+        const uploader = document.getElementById('video-uploader');
+        const duration = document.getElementById('video-duration');
+        const views = document.getElementById('video-views');
+        
+        if (thumbnail && videoData.thumbnail) {
+            thumbnail.src = videoData.thumbnail;
+            thumbnail.alt = videoData.title || 'Video Thumbnail';
+        }
+        
+        if (title) {
+            title.textContent = videoData.title || 'Unknown Title';
+            title.style.color = 'white';
+        }
+        
+        if (uploader) {
+            uploader.textContent = videoData.uploader || 'Unknown';
+        }
+        
+        if (duration) {
+            duration.textContent = videoData.duration || 'Unknown';
+        }
+        
+        if (views && videoData.view_count) {
+            views.textContent = this.formatNumber(videoData.view_count);
+        }
+        
         // Show video info section
         document.getElementById('video-info').style.display = 'block';
+        console.log('Video info section should now be visible');
         
         // Populate advanced options
         this.populateAdvancedOptions();
