@@ -751,46 +751,53 @@ body::after {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-/* Mobile-first approach for Video/Audio buttons */
+/* MOBILE VIDEO/AUDIO BUTTONS - PRIORITY OVERRIDE */
 @media (max-width: 768px) {
     .format-type-option {
-        padding: 1.25rem 0.8rem !important;
-        font-size: 1.2rem !important;
-        min-height: 80px !important;
-        max-height: 80px !important;
-        height: 80px !important;
+        padding: 1.5rem 0.8rem !important;
+        font-size: 1.3rem !important;
+        min-height: 90px !important;
+        max-height: 90px !important;
+        height: 90px !important;
         width: 100% !important;
-        font-weight: 800 !important;
+        font-weight: 900 !important;
         margin: 0 !important;
-        border-radius: 14px !important;
-        border: 4px solid rgba(59, 130, 246, 0.6) !important;
-        background: linear-gradient(145deg, rgba(59, 130, 246, 0.25), rgba(15, 23, 42, 0.95)) !important;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25) !important;
+        border-radius: 16px !important;
+        border: 5px solid rgba(59, 130, 246, 0.8) !important;
+        background: linear-gradient(145deg, rgba(59, 130, 246, 0.3), rgba(15, 23, 42, 0.95)) !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4) !important;
         text-transform: uppercase !important;
-        letter-spacing: 1px !important;
+        letter-spacing: 1.2px !important;
         transform: scale(1) !important;
         transition: all 0.3s ease !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        position: relative !important;
+        z-index: 10 !important;
     }
     
     .format-type-option:hover {
-        transform: scale(1.03) !important;
-        box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4) !important;
-        border-color: rgba(59, 130, 246, 0.9) !important;
+        transform: scale(1.05) !important;
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.5) !important;
+        border-color: rgba(59, 130, 246, 1) !important;
+        background: linear-gradient(145deg, rgba(59, 130, 246, 0.4), rgba(15, 23, 42, 0.95)) !important;
     }
     
     .format-type-option.active {
         background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%) !important;
         border-color: rgba(59, 130, 246, 1) !important;
-        box-shadow: 0 8px 28px rgba(59, 130, 246, 0.6) !important;
-        transform: scale(1.05) !important;
+        box-shadow: 0 12px 35px rgba(59, 130, 246, 0.7) !important;
+        transform: scale(1.08) !important;
         color: white !important;
     }
     
     .format-type-option i {
-        font-size: 1.8rem !important;
+        font-size: 2rem !important;
         margin-right: 0.8rem !important;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5) !important;
-        color: rgba(255, 255, 255, 0.95) !important;
+        text-shadow: 0 3px 6px rgba(0, 0, 0, 0.6) !important;
+        color: rgba(255, 255, 255, 1) !important;
     }
 }
 

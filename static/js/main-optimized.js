@@ -233,14 +233,28 @@ class VideoDownloader {
         this.showDownloadProgress();
 
         try {
+            // Enhanced format selection for quick download
+            let formatId = 'best';
+            let fileFormat = 'mp4';
+            
+            if (this.selectedType === 'audio') {
+                formatId = 'bestaudio';
+                fileFormat = 'mp3';
+            } else {
+                // For video, use best available quality
+                formatId = 'best[height<=1080]/best';
+            }
+
+            console.log('Quick download with format:', formatId, 'type:', this.selectedType);
+
             const response = await fetch('/download_video', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     url: url,
-                    format_id: this.selectedType === 'audio' ? 'bestaudio' : 'best',
+                    format_id: formatId,
                     audio_only: this.selectedType === 'audio',
-                    file_format: 'mp4'
+                    file_format: fileFormat
                 })
             });
 
@@ -273,15 +287,26 @@ class VideoDownloader {
         this.showDownloadProgress();
 
         try {
-            // Fix format selection - use simple format for compatibility
-            let formatId = null;
-            if (qualitySelect.value && qualitySelect.value !== '') {
-                // Use the actual format ID, but fallback to simpler formats
-                formatId = qualitySelect.value;
+            // Enhanced format selection for custom download
+            let formatId = 'best';
+            let fileFormat = 'mp4';
+            
+            if (this.selectedType === 'audio') {
+                formatId = qualitySelect.value || 'bestaudio';
+                fileFormat = formatSelect.value || 'mp3';
             } else {
-                // Default to best available format
-                formatId = this.selectedType === 'audio' ? 'bestaudio' : 'best';
+                // For video, use selected quality or default to best
+                formatId = qualitySelect.value || 'best[height<=1080]/best';
+                fileFormat = formatSelect.value || 'mp4';
             }
+
+            console.log('Custom download with:', {
+                formatId,
+                fileFormat,
+                selectedType: this.selectedType,
+                qualityValue: qualitySelect.value,
+                formatValue: formatSelect.value
+            });
 
             const response = await fetch('/download_video', {
                 method: 'POST',
@@ -290,7 +315,7 @@ class VideoDownloader {
                     url: url,
                     format_id: formatId,
                     audio_only: this.selectedType === 'audio',
-                    file_format: formatSelect.value || 'mp4'
+                    file_format: fileFormat
                 })
             });
 

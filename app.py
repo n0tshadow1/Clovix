@@ -121,6 +121,7 @@ def download_video():
                     }
                 
                 logging.info(f"Starting download for download_id: {download_id}")
+                logging.info(f"Download parameters: url={url}, format_id={format_id}, audio_only={audio_only}, file_format={file_format}")
                 result = downloader.download_video(url, format_id, audio_only, file_format, progress_hook)
                 logging.info(f"Download result: {result}")
                 
