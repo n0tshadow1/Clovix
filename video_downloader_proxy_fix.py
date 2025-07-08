@@ -368,8 +368,8 @@ class VideoDownloader:
                     if file_format == '3gp':
                         conversion_strategies = [
                             {
-                                'key': 'FFmpegVideoConverter',
-                                'preferredformat': '3gp',
+                                'key': 'FFmpegVideoConvertor',
+                                'preferedformat': '3gp',
                             },
                             # Fallback: Use direct format selection
                             None
@@ -377,8 +377,8 @@ class VideoDownloader:
                     elif file_format in ['mkv', 'webm', 'avi', 'flv']:
                         conversion_strategies = [
                             {
-                                'key': 'FFmpegVideoConverter',
-                                'preferredformat': file_format,
+                                'key': 'FFmpegVideoConvertor', 
+                                'preferedformat': file_format,
                             },
                             # Fallback: Use direct format selection
                             None
