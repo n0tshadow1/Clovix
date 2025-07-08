@@ -306,18 +306,35 @@ class VideoDownloader:
             if progress_hook:
                 ydl_opts['progress_hooks'] = [progress_hook]
             
-            # Format selection
+            # Format selection with quality and file format support
             if audio_only:
                 ydl_opts['format'] = 'bestaudio/best'
-                ydl_opts['postprocessors'] = [{
-                    'key': 'FFmpegExtractAudio',
-                    'preferredcodec': 'mp3',
-                    'preferredquality': '192',
-                }]
+                if file_format in ['mp3', 'm4a', 'wav', 'flac']:
+                    ydl_opts['postprocessors'] = [{
+                        'key': 'FFmpegExtractAudio',
+                        'preferredcodec': file_format if file_format != 'mp3' else 'mp3',
+                        'preferredquality': '192',
+                    }]
             elif format_id and format_id != 'server_blocked':
+                # Use specific format ID for quality selection
                 ydl_opts['format'] = format_id
+                
+                # Add format conversion if needed
+                if file_format and file_format != 'mp4':
+                    ydl_opts['postprocessors'] = [{
+                        'key': 'FFmpegVideoConvertor',
+                        'preferedformat': file_format,
+                    }]
             else:
+                # Default format selection
                 ydl_opts['format'] = 'best'
+                
+                # Add format conversion for default downloads
+                if file_format and file_format != 'mp4':
+                    ydl_opts['postprocessors'] = [{
+                        'key': 'FFmpegVideoConvertor',
+                        'preferedformat': file_format,
+                    }]
             
             # Download
             with self.memory_managed_extraction(ydl_opts) as ydl:
@@ -340,22 +357,20 @@ class VideoDownloader:
         """Setup YouTube session with realistic cookies and user data"""
         cookies_file = os.path.join(self.temp_dir, 'youtube_session.txt')
         
-        # Create realistic YouTube session cookies
+        # Create properly formatted Netscape cookies
         session_cookies = [
-            # YouTube consent and preference cookies
-            '.youtube.com\tTRUE\t/\tFALSE\t1893456000\tCONSENT\tYES+cb.20210328-17-p0.en-GB+FX+667',
-            '.youtube.com\tTRUE\t/\tFALSE\t1893456000\tVISITOR_INFO1_LIVE\tfH3p6gJ6g4d8w7x',
-            '.youtube.com\tTRUE\t/\tFALSE\t1893456000\tYSC\tD4fjsklNdtjzOpA',
-            '.youtube.com\tTRUE\t/\tFALSE\t1893456000\tPREF\tf1=50000000&f6=40000000&hl=en&gl=US&f5=30000',
-            
-            # Google authentication simulation
-            '.google.com\tTRUE\t/\tTRUE\t1893456000\t1P_JAR\t2024-07-08-08',
-            '.google.com\tTRUE\t/\tTRUE\t1893456000\tNID\t511=example_session_token_12345',
-            '.google.com\tTRUE\t/\tFALSE\t1893456000\tSIDCC\tAKEyXzWfH3p6gJ6g4d8w7xDm9jJ4mOc',
-            
-            # YouTube tracking and analytics
-            '.youtube.com\tTRUE\t/\tFALSE\t1893456000\tGPS\t1',
-            '.youtube.com\tTRUE\t/\tFALSE\t1893456000\tSID\tg.a000rQgdGSGdjfkdjfdkjfslkdfj',
+            '# Netscape HTTP Cookie File',
+            '# This is a generated file!  Do not edit.',
+            '',
+            '.youtube.com       TRUE    /       FALSE   1893456000      CONSENT YES+cb.20210328-17-p0.en-GB+FX+667',
+            '.youtube.com       TRUE    /       FALSE   1893456000      VISITOR_INFO1_LIVE      fH3p6gJ6g4d8w7x',
+            '.youtube.com       TRUE    /       FALSE   1893456000      YSC     D4fjsklNdtjzOpA',
+            '.youtube.com       TRUE    /       FALSE   1893456000      PREF    f1=50000000&f6=40000000&hl=en&gl=US&f5=30000',
+            '.google.com        TRUE    /       TRUE    1893456000      1P_JAR  2024-07-08-08',
+            '.google.com        TRUE    /       TRUE    1893456000      NID     511=example_session_token_12345',
+            '.google.com        TRUE    /       FALSE   1893456000      SIDCC   AKEyXzWfH3p6gJ6g4d8w7xDm9jJ4mOc',
+            '.youtube.com       TRUE    /       FALSE   1893456000      GPS     1',
+            '.youtube.com       TRUE    /       FALSE   1893456000      SID     g.a000rQgdGSGdjfkdjfdkjfslkdfj',
         ]
         
         try:
@@ -379,33 +394,12 @@ class VideoDownloader:
         if self.cookies_file and os.path.exists(self.cookies_file):
             base_cmd.extend(['--cookies', self.cookies_file])
         
+        # Create strategies without cookies for better compatibility
         strategies = [
             {
-                'name': 'Authenticated Web Client',
-                'cmd': base_cmd + [
-                    '--extractor-args', 'youtube:player_client=web',
-                    '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    '--add-header', 'Accept-Language:en-US,en;q=0.9',
-                    '--add-header', 'Accept:text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                    '--referer', 'https://www.youtube.com/',
-                    '--format', 'worst[ext=mp4]/worst',
-                    '-o', output_path, url
-                ]
-            },
-            {
-                'name': 'Authenticated Android Client',
-                'cmd': base_cmd + [
-                    '--extractor-args', 'youtube:player_client=android',
-                    '--user-agent', 'com.google.android.youtube/17.31.35 (Linux; U; Android 11) gzip',
-                    '--add-header', 'X-YouTube-Client-Name:3',
-                    '--add-header', 'X-YouTube-Client-Version:17.31.35',
-                    '--format', 'worst[height<=480]/worst',
-                    '-o', output_path, url
-                ]
-            },
-            {
-                'name': 'TV Embedded with Auth',
-                'cmd': base_cmd + [
+                'name': 'No-Auth TV Embedded',
+                'cmd': [
+                    'yt-dlp', '--no-warnings', '--ignore-errors',
                     '--extractor-args', 'youtube:player_client=tv_embedded',
                     '--extractor-args', 'youtube:player_skip=js,configs',
                     '--user-agent', 'Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/537.36',
@@ -415,35 +409,47 @@ class VideoDownloader:
                 ]
             },
             {
-                'name': 'Embedded Player Bypass',
-                'cmd': base_cmd + [
+                'name': 'Android TV Client',
+                'cmd': [
+                    'yt-dlp', '--no-warnings', '--ignore-errors',
+                    '--extractor-args', 'youtube:player_client=android_tv',
+                    '--user-agent', 'com.google.android.youtube.tv/1.0 (Linux; U; Android 9; SM-T500) gzip',
+                    '--format', 'worst[height<=480]/worst',
+                    '-o', output_path, url
+                ]
+            },
+            {
+                'name': 'Web Embedded Bypass',
+                'cmd': [
+                    'yt-dlp', '--no-warnings', '--ignore-errors',
                     '--extractor-args', 'youtube:player_client=web_embedded',
                     '--referer', 'https://www.youtube.com/embed/',
-                    '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                     '--add-header', 'Origin:https://www.youtube.com',
-                    '--add-header', 'Sec-Fetch-Site:same-origin',
                     '--format', 'worst[ext=mp4]/worst',
                     '--no-check-certificates',
                     '-o', output_path, url
                 ]
             },
             {
-                'name': 'iOS Music Client',
-                'cmd': base_cmd + [
-                    '--extractor-args', 'youtube:player_client=ios_music',
-                    '--user-agent', 'com.google.ios.youtubemusic/4.32.1 (iPhone14,3; U; CPU OS 15_6 like Mac OS X)',
-                    '--format', 'worst[ext=mp4]',
+                'name': 'Android Client',
+                'cmd': [
+                    'yt-dlp', '--no-warnings', '--ignore-errors',
+                    '--extractor-args', 'youtube:player_client=android',
+                    '--user-agent', 'com.google.android.youtube/17.31.35 (Linux; U; Android 11) gzip',
+                    '--add-header', 'X-YouTube-Client-Name:3',
+                    '--add-header', 'X-YouTube-Client-Version:17.31.35',
+                    '--format', 'worst[height<=480]/worst',
                     '-o', output_path, url
                 ]
             },
             {
-                'name': 'Web Creator with Auth',
-                'cmd': base_cmd + [
-                    '--extractor-args', 'youtube:player_client=web_creator',
-                    '--referer', 'https://studio.youtube.com/',
-                    '--user-agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-                    '--add-header', 'Authorization:Bearer simulated_token',
-                    '--format', 'worst',
+                'name': 'iOS Client',
+                'cmd': [
+                    'yt-dlp', '--no-warnings', '--ignore-errors',
+                    '--extractor-args', 'youtube:player_client=ios',
+                    '--user-agent', 'com.google.ios.youtube/19.29.1 (iPhone14,3; U; CPU OS 15_6 like Mac OS X)',
+                    '--format', 'worst[ext=mp4]',
                     '-o', output_path, url
                 ]
             }
@@ -488,22 +494,16 @@ class VideoDownloader:
                 logging.warning(f"Strategy {strategy['name']} exception: {str(e)}")
                 continue
         
-        # Final fallback with youtube-dl and session cookies
+        # Final fallback with youtube-dl (no cookies)
         try:
-            logging.info("Trying final youtube-dl with session bypass")
-            cmd = ['youtube-dl', '--no-warnings']
-            
-            # Add cookies if available
-            if self.cookies_file and os.path.exists(self.cookies_file):
-                cmd.extend(['--cookies', self.cookies_file])
-            
-            cmd.extend([
+            logging.info("Trying final youtube-dl bypass")
+            cmd = [
+                'youtube-dl', '--no-warnings',
                 '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0',
                 '--referer', 'https://www.youtube.com/',
-                '--add-header', 'Accept-Language:en-US,en;q=0.9',
                 '--format', 'worst[ext=mp4]/worst',
                 '-o', output_path, url
-            ])
+            ]
             
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=45)
             
@@ -511,7 +511,7 @@ class VideoDownloader:
                 for file in os.listdir(self.temp_dir):
                     if file.startswith(f'video_{video_id}'):
                         file_path = os.path.join(self.temp_dir, file)
-                        logging.info(f"SUCCESS: Downloaded with authenticated youtube-dl: {file}")
+                        logging.info(f"SUCCESS: Downloaded with youtube-dl: {file}")
                         return {'file_path': file_path, 'filename': file}
         except:
             pass
