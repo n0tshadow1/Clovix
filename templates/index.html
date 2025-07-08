@@ -246,57 +246,63 @@
                     <!-- Download Options -->
                     <div class="download-options">
                         <h5 style="color: white; margin-bottom: 1.5rem;">
-                            <i class="fas fa-cog me-2"></i>
-                            Download Options
+                            <i class="fas fa-download me-2"></i>
+                            Download
                         </h5>
                         
-                        <!-- Step 1: Format Selection -->
-                        <div class="mb-4">
-                            <h6 style="color: rgba(255, 255, 255, 0.9); margin-bottom: 1rem;">
-                                <span class="badge bg-primary me-2">1</span>Choose Format Type
-                            </h6>
+                        <!-- Format Type Selection -->
+                        <div class="mb-3">
                             <div class="row">
-                                <div class="col-md-6 mb-2">
-                                    <div class="simple-option" data-step="format" data-value="video">
+                                <div class="col-6">
+                                    <div class="format-type-option active" data-type="video">
                                         <i class="fas fa-video me-2"></i>Video
                                     </div>
                                 </div>
-                                <div class="col-md-6 mb-2">
-                                    <div class="simple-option" data-step="format" data-value="audio">
-                                        <i class="fas fa-music me-2"></i>Audio Only
+                                <div class="col-6">
+                                    <div class="format-type-option" data-type="audio">
+                                        <i class="fas fa-music me-2"></i>Audio
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Step 2: Quality Selection -->
-                        <div id="quality-section" style="display: none;" class="mb-4">
-                            <h6 style="color: rgba(255, 255, 255, 0.9); margin-bottom: 1rem;">
-                                <span class="badge bg-success me-2">2</span>Select Quality
-                            </h6>
-                            <div class="quality-simple-grid" id="quality-options">
-                                <!-- Quality options will be populated here -->
-                            </div>
-                        </div>
-
-                        <!-- Step 3: File Format Selection -->
-                        <div id="file-format-section" style="display: none;" class="mb-4">
-                            <h6 style="color: rgba(255, 255, 255, 0.9); margin-bottom: 1rem;">
-                                <span class="badge bg-warning me-2">3</span>Choose File Format
-                            </h6>
-                            <div class="quality-simple-grid" id="file-format-options">
-                                <!-- File format options will be populated here -->
-                            </div>
-                        </div>
-
-                        <!-- Download Button -->
-                        <div class="text-center mt-4">
-                            <button class="btn btn-success btn-lg" id="download-btn" disabled>
+                        <!-- Quick Download Button -->
+                        <div class="text-center mb-3">
+                            <button class="btn btn-success btn-lg quick-download-btn" id="quick-download-btn">
                                 <i class="fas fa-download me-2"></i>
-                                Download Now
+                                Download Best Quality
                             </button>
-                            <div id="selection-status" class="mt-2" style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem;">
-                                Complete all 3 steps above to enable download
+                        </div>
+
+                        <!-- Advanced Options Toggle -->
+                        <div class="text-center mb-3">
+                            <button class="btn btn-outline-light btn-sm advanced-toggle" id="advanced-toggle">
+                                <i class="fas fa-cog me-1"></i>
+                                Custom Options
+                            </button>
+                        </div>
+
+                        <!-- Advanced Options Panel -->
+                        <div id="advanced-options" class="advanced-panel" style="display: none;">
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label text-light small">Quality</label>
+                                    <select class="form-select form-select-sm" id="quality-select">
+                                        <option value="">Best Available</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label text-light small">Format</label>
+                                    <select class="form-select form-select-sm" id="format-select">
+                                        <option value="">Auto</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <button class="btn btn-primary btn-sm" id="custom-download-btn">
+                                    <i class="fas fa-download me-2"></i>
+                                    Download Custom
+                                </button>
                             </div>
                         </div>
                     </div>
