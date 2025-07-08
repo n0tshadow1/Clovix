@@ -1,7 +1,7 @@
 import os
 import logging
 from flask import Flask, render_template, request, jsonify, send_file, flash, redirect, url_for
-from video_downloader_ultimate_fix import VideoDownloader
+from video_downloader_proxy_fix import VideoDownloader
 import tempfile
 import threading
 import time
