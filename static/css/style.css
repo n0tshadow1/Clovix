@@ -712,12 +712,14 @@ body::after {
     
     /* Force Video/Audio buttons to stay side by side on mobile */
     .format-type-option {
-        padding: 0.8rem !important;
-        font-size: 0.9rem !important;
-        min-height: 50px !important;
+        padding: 1.2rem 0.5rem !important;
+        font-size: 1rem !important;
+        min-height: 60px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        width: 100% !important;
+        font-weight: 600 !important;
     }
     
     /* Ensure row with Video/Audio buttons stays horizontal */

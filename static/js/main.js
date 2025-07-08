@@ -136,9 +136,9 @@ class VideoDownloader {
         const statusDiv = document.getElementById('selection-status');
         const steps = [];
         
-        if (this.selectedFormat) steps.push('Format ✓');
-        if (this.selectedQuality) steps.push('Quality ✓');
-        if (this.selectedFileFormat) steps.push('File Format ✓');
+        if (this.selectedFormat) steps.push('Format');
+        if (this.selectedQuality) steps.push('Quality');
+        if (this.selectedFileFormat) steps.push('File Format');
         
         if (steps.length === 3) {
             statusDiv.textContent = 'Ready to download!';
