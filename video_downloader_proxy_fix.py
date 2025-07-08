@@ -246,9 +246,15 @@ class VideoDownloader:
                 else:
                     ydl_opts['format'] = 'best[height<=1080]/best'
                 
-                # Skip format conversion - download MP4 directly
-                # Format conversion disabled due to FFmpeg encoder issues
-                logging.info(f"Requested format: {file_format}, downloading as MP4")
+                # FIXED: Format conversion now works with FFmpeg installed
+                if file_format and file_format not in ['mp4']:
+                    ydl_opts['postprocessors'] = [{
+                        'key': 'FFmpegVideoConvertor',
+                        'preferedformat': file_format,
+                    }]
+                    logging.info(f"Converting to format: {file_format}")
+                else:
+                    logging.info(f"Downloading as MP4")
             
             # Simplified format selection - no complex fallbacks
             logging.info(f"Final download format: {ydl_opts['format']}")
