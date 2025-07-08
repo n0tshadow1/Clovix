@@ -226,7 +226,7 @@ class VideoDownloader:
             if progress_hook:
                 ydl_opts['progress_hooks'] = [progress_hook]
             
-            # Enhanced format selection with proper quality and format support
+            # FIXED: Proper format selection using actual format IDs
             if audio_only:
                 ydl_opts['format'] = 'bestaudio/best'
                 if file_format in ['mp3', 'm4a', 'wav', 'flac']:
@@ -236,21 +236,23 @@ class VideoDownloader:
                         'preferredquality': '192',
                     }]
             else:
-                # Video format selection with quality support
-                if format_id and format_id not in ['best', 'worst']:
-                    # Use specific format ID
+                # FIXED: Use exact format ID from video analysis
+                if format_id and format_id not in ['best', 'worst', 'server_blocked']:
+                    # Use the actual format ID from the video info
                     ydl_opts['format'] = format_id
+                    logging.info(f"Using specific format ID: {format_id}")
                 elif format_id == 'worst':
-                    ydl_opts['format'] = 'worst[ext=mp4]/worst'
+                    ydl_opts['format'] = 'worst[height<=480]/worst'
                 else:
-                    ydl_opts['format'] = 'best[ext=mp4]/best'
+                    ydl_opts['format'] = 'best[height<=1080]/best'
                 
-                # Add format conversion if needed
-                if file_format and file_format not in ['mp4', 'original']:
+                # FIXED: Proper format conversion 
+                if file_format and file_format not in ['mp4']:
                     ydl_opts['postprocessors'] = [{
                         'key': 'FFmpegVideoConvertor',
                         'preferedformat': file_format,
                     }]
+                    logging.info(f"Converting to format: {file_format}")
             
             # Add additional fallback formats
             if not audio_only:
