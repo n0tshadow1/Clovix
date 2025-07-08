@@ -497,7 +497,7 @@ class VideoDownloader:
                     }
                 })
             
-            # Format selection
+            # Format selection with better fallbacks
             if audio_only:
                 ydl_opts['format'] = 'bestaudio/best'
                 ydl_opts['postprocessors'] = [{
@@ -506,9 +506,14 @@ class VideoDownloader:
                     'preferredquality': '192',
                 }]
             elif format_id:
-                ydl_opts['format'] = format_id
+                # Fix height-based selectors that cause format errors
+                if format_id.startswith('best[height<='):
+                    # Use simple fallback for height-based selection
+                    ydl_opts['format'] = 'best/worst'
+                else:
+                    ydl_opts['format'] = format_id
             else:
-                ydl_opts['format'] = 'best[height<=720]/best'
+                ydl_opts['format'] = 'best/worst'
             
             # Add format conversion if needed
             if target_format and not audio_only:
