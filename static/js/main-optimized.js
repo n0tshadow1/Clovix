@@ -31,6 +31,12 @@ class VideoDownloader {
 
         // Quick download button
         document.getElementById('quick-download-btn')?.addEventListener('click', () => {
+            // FORCE advanced options to be visible before quick download
+            const advancedPanel = document.getElementById('advanced-options');
+            if (advancedPanel && advancedPanel.style.display === 'none') {
+                advancedPanel.style.display = 'block';
+                this.populateAdvancedOptions();
+            }
             this.quickDownload();
         });
 
@@ -242,17 +248,14 @@ class VideoDownloader {
             let formatId = 'best';
             let fileFormat = 'mp4';
             
-            // CHECK if advanced options panel is open and has selections
-            const advancedPanel = document.getElementById('advanced-options');
-            const hasAdvancedSelection = advancedPanel && advancedPanel.style.display !== 'none';
-            
+            // ALWAYS use selected values from dropdowns (force populate first)
             if (this.selectedType === 'audio') {
-                formatId = (hasAdvancedSelection && qualitySelect?.value) ? qualitySelect.value : 'bestaudio';
-                fileFormat = (hasAdvancedSelection && formatSelect?.value) ? formatSelect.value : 'mp3';
+                formatId = qualitySelect?.value || 'bestaudio';
+                fileFormat = formatSelect?.value || 'mp3';
             } else {
-                // For video, use selected quality and format from dropdowns if available
-                formatId = (hasAdvancedSelection && qualitySelect?.value) ? qualitySelect.value : 'best[height<=720]/best';
-                fileFormat = (hasAdvancedSelection && formatSelect?.value) ? formatSelect.value : 'mp4';
+                // For video, ALWAYS use selected quality and format from dropdowns
+                formatId = qualitySelect?.value || 'best[height<=720]';
+                fileFormat = formatSelect?.value || 'mp4';
             }
 
             console.log('Quick download with:', {

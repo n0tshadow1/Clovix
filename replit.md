@@ -219,7 +219,14 @@ Preferred communication style: Simple, everyday language.
 - **Compact Design**: Advanced options appear in small dropdown boxes instead of full sections
 - **Mobile Optimization**: Significantly reduced vertical space requirements for mobile users
 
-### July 08, 2025 - CRITICAL Format Download Fix + Massive Mobile Button Enhancement
+### July 08, 2025 - CRITICAL Auto-Download Format Selection Fix
+- **FIXING CRITICAL BUG**: Auto-download defaulting to MP4 360p instead of selected format/quality
+- **FORCE Advanced Options**: Quick download now automatically opens advanced options panel
+- **ALWAYS USE SELECTIONS**: Quick download now always reads from quality/format dropdowns
+- **SIMPLIFIED LOGIC**: Removed complex conditional logic that was causing defaults to override selections
+- **USER COMPLAINT**: Fixed persistent issue where auto-download ignores user format/quality selections
+
+### July 08, 2025 - CRITICAL Format Download Fix + Massive Mobile Button Enhancement (PREVIOUS)
 - **FIXED DOWNLOAD FORMAT ERRORS** - Resolved "Requested format is not available" errors by implementing proper format fallback logic
 - **ENHANCED FORMAT SELECTION** - Fixed custom download format selection to use compatible yt-dlp format strings
 - **MASSIVE MOBILE BUTTON UPGRADE** - Video/Audio buttons now 42px height, bold styling, uppercase text, and prominent visual effects
