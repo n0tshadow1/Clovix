@@ -535,14 +535,14 @@ class VideoDownloader:
             else:
                 ydl_opts['format'] = 'best/worst'
             
-            # Skip format conversion to avoid encoder errors - download in original format
-            # if target_format and not audio_only:
-            #     # Only add conversion if we have a valid target format
-            #     if target_format in ['3gp', 'mkv', 'webm', 'avi', 'flv']:
-            #         ydl_opts['postprocessors'] = [{
-            #             'key': 'FFmpegVideoConvertor',
-            #             'preferedformat': target_format,
-            #         }]
+            # Enable format conversion when requested
+            if target_format and not audio_only:
+                # Add conversion for specific formats
+                if target_format in ['3gp', 'mkv', 'webm', 'avi', 'flv']:
+                    ydl_opts['postprocessors'] = [{
+                        'key': 'FFmpegVideoConvertor',
+                        'preferedformat': target_format,
+                    }]
             
             # Download
             with self.memory_managed_extraction(ydl_opts) as ydl:
