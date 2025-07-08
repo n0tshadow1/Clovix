@@ -506,11 +506,18 @@ class VideoDownloader:
                     'preferredquality': '192',
                 }]
             elif format_id:
-                # Fix height-based selectors that cause format errors
-                if format_id.startswith('best[height<='):
-                    # Extract height and use working format
+                # Use working format selectors
+                if format_id == 'best':
+                    ydl_opts['format'] = 'best'
+                elif format_id == 'worst':
+                    ydl_opts['format'] = 'worst'
+                elif format_id.startswith('best[height<='):
+                    # Use simpler format that works
                     height = format_id.split('<=')[1].split(']')[0]
-                    ydl_opts['format'] = f'best[height<={height}]/worst[height<={height}]/best/worst'
+                    if int(height) >= 720:
+                        ydl_opts['format'] = 'best'
+                    else:
+                        ydl_opts['format'] = f'best[height<={height}]/worst'
                 else:
                     ydl_opts['format'] = format_id
             else:
