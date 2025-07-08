@@ -523,16 +523,14 @@ class VideoDownloader:
             else:
                 ydl_opts['format'] = 'best/worst'
             
-            # Add format conversion if needed
-            if target_format and not audio_only:
-                # Only add conversion if we have a valid target format
-                if target_format in ['3gp', 'mkv', 'webm', 'avi', 'flv']:
-                    ydl_opts['postprocessors'] = [{
-                        'key': 'FFmpegVideoConvertor',
-                        'preferedformat': target_format,
-                    }]
-                    # Add FFmpeg path - use system FFmpeg
-                    ydl_opts['ffmpeg_location'] = '/nix/store/3zc5jbvqzrn8zmva4fx5p0nh4yy03wk4-ffmpeg-6.1.1-bin/bin/ffmpeg'
+            # Skip format conversion to avoid encoder errors - download in original format
+            # if target_format and not audio_only:
+            #     # Only add conversion if we have a valid target format
+            #     if target_format in ['3gp', 'mkv', 'webm', 'avi', 'flv']:
+            #         ydl_opts['postprocessors'] = [{
+            #             'key': 'FFmpegVideoConvertor',
+            #             'preferedformat': target_format,
+            #         }]
             
             # Download
             with self.memory_managed_extraction(ydl_opts) as ydl:
