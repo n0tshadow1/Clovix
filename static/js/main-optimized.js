@@ -238,9 +238,9 @@ class VideoDownloader {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     url: url,
-                    format_id: null, // Best quality
+                    format_id: this.selectedType === 'audio' ? 'bestaudio' : 'best',
                     audio_only: this.selectedType === 'audio',
-                    file_format: null // Auto format
+                    file_format: 'mp4'
                 })
             });
 
@@ -273,14 +273,24 @@ class VideoDownloader {
         this.showDownloadProgress();
 
         try {
+            // Fix format selection - use simple format for compatibility
+            let formatId = null;
+            if (qualitySelect.value && qualitySelect.value !== '') {
+                // Use the actual format ID, but fallback to simpler formats
+                formatId = qualitySelect.value;
+            } else {
+                // Default to best available format
+                formatId = this.selectedType === 'audio' ? 'bestaudio' : 'best';
+            }
+
             const response = await fetch('/download_video', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     url: url,
-                    format_id: qualitySelect.value || null,
+                    format_id: formatId,
                     audio_only: this.selectedType === 'audio',
-                    file_format: formatSelect.value || null
+                    file_format: formatSelect.value || 'mp4'
                 })
             });
 

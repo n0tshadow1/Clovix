@@ -710,41 +710,47 @@ body::after {
         font-size: 0.9rem;
     }
     
-    /* Enhanced Video/Audio buttons for mobile - much larger and better touch targets */
+    /* Enhanced Video/Audio buttons for mobile - MUCH larger and better touch targets */
     .format-type-option {
-        padding: 1.5rem 1rem !important;
-        font-size: 1.1rem !important;
-        min-height: 70px !important;
+        padding: 2rem 1.5rem !important;
+        font-size: 1.3rem !important;
+        min-height: 90px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         width: 100% !important;
-        font-weight: 700 !important;
+        font-weight: 800 !important;
         margin: 0 !important;
-        border-radius: 16px !important;
-        border: 2px solid rgba(59, 130, 246, 0.3) !important;
-        background: linear-gradient(145deg, rgba(59, 130, 246, 0.1), rgba(15, 23, 42, 0.9)) !important;
+        border-radius: 20px !important;
+        border: 4px solid rgba(59, 130, 246, 0.5) !important;
+        background: linear-gradient(145deg, rgba(59, 130, 246, 0.2), rgba(15, 23, 42, 0.95)) !important;
         transition: all 0.3s ease !important;
         position: relative !important;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
     }
     
     .format-type-option.active {
-        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
-        border-color: #3b82f6 !important;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%) !important;
+        border-color: #60a5fa !important;
         color: white !important;
-        transform: scale(1.02) !important;
-        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3) !important;
+        transform: scale(1.08) !important;
+        box-shadow: 0 10px 40px rgba(59, 130, 246, 0.6), 0 0 30px rgba(59, 130, 246, 0.4) !important;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
     }
     
     .format-type-option:hover {
-        background: linear-gradient(145deg, rgba(59, 130, 246, 0.2), rgba(30, 41, 59, 0.9)) !important;
-        border-color: rgba(59, 130, 246, 0.5) !important;
-        transform: translateY(-1px) !important;
+        background: linear-gradient(145deg, rgba(59, 130, 246, 0.3), rgba(30, 41, 59, 0.95)) !important;
+        border-color: rgba(59, 130, 246, 0.7) !important;
+        transform: translateY(-2px) scale(1.05) !important;
+        box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4) !important;
     }
     
     .format-type-option i {
-        font-size: 1rem !important;
-        margin-right: 0.5rem !important;
+        font-size: 1.4rem !important;
+        margin-right: 0.75rem !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
     }
     
     /* Ensure row with Video/Audio buttons stays horizontal */
@@ -763,21 +769,24 @@ body::after {
     }
 }
 
-/* Format type selection (Video/Audio) - Desktop */
+/* Format type selection (Video/Audio) - Enhanced for both desktop and mobile */
 .format-type-option {
-    padding: 1rem;
+    padding: 1.2rem 1rem;
     text-align: center;
-    background: linear-gradient(145deg, rgba(59, 130, 246, 0.1), rgba(15, 23, 42, 0.9));
-    border: 2px solid rgba(59, 130, 246, 0.2);
-    border-radius: 12px;
+    background: linear-gradient(145deg, rgba(59, 130, 246, 0.15), rgba(15, 23, 42, 0.95));
+    border: 3px solid rgba(59, 130, 246, 0.4);
+    border-radius: 16px;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
-    min-height: 60px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.95);
+    min-height: 75px;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .simple-option[data-step="format"]:hover {
@@ -1623,16 +1632,23 @@ footer .container {
 }
 
 .format-type-option:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
+    background: linear-gradient(145deg, rgba(59, 130, 246, 0.25), rgba(30, 41, 59, 0.95));
+    border-color: rgba(59, 130, 246, 0.6);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
 }
 
 .format-type-option.active {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    border-color: #3b82f6;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+    border-color: #60a5fa;
     color: white;
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 30px rgba(59, 130, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+.format-type-option i {
+    font-size: 1.2rem;
+    margin-right: 0.75rem;
 }
 
 /* Quick Download Button */
