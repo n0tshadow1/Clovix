@@ -11,5 +11,6 @@ dependencies = [
     "gunicorn>=23.0.0",
     "psycopg2-binary>=2.9.10",
     "requests>=2.32.4",
+    "youtube-dl>=2021.12.17",
     "yt-dlp>=2025.6.30",
 ]

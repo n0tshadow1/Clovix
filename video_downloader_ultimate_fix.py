@@ -451,48 +451,102 @@ class VideoDownloader:
             error_msg = str(e)
             logging.error(f"Download failed: {error_msg}")
             
-            # Never return auth errors - always try fallback
-            if "sign in" in error_msg.lower() or "cookies" in error_msg.lower():
+            # Always try fallback for YouTube auth errors OR any YouTube URL
+            if ("sign in" in error_msg.lower() or 
+                "cookies" in error_msg.lower() or 
+                "bot" in error_msg.lower() or
+                ('youtube.com' in url or 'youtu.be' in url)):
+                logging.info("Triggering aggressive fallback download strategies")
                 return self._download_fallback(url, format_id, audio_only, progress_hook)
             else:
                 return {'error': f'Download failed: {error_msg}'}
 
     def _download_fallback(self, url, format_id, audio_only, progress_hook):
-        """Fallback download using command line with no auth"""
+        """Multiple aggressive fallback strategies for YouTube downloads"""
+        video_id = self._extract_video_id(url)
+        output_path = os.path.join(self.temp_dir, f'video_{video_id}.%(ext)s')
+        
+        # Strategy 1: Most aggressive bypass with minimal format requirements
+        strategies = [
+            {
+                'name': 'Mobile App Bypass',
+                'cmd': [
+                    'yt-dlp', '--no-warnings', '--ignore-errors',
+                    '--extractor-args', 'youtube:player_client=android_music',
+                    '--user-agent', 'com.google.android.apps.youtube.music/',
+                    '--format', '18/worst/any',  # Force lowest quality that works
+                    '-o', output_path, url
+                ]
+            },
+            {
+                'name': 'TV Client Bypass',
+                'cmd': [
+                    'yt-dlp', '--no-warnings', '--ignore-errors',
+                    '--extractor-args', 'youtube:player_client=tv_embedded',
+                    '--extractor-args', 'youtube:player_skip=js',
+                    '--format', 'worst[ext=mp4]/worst/any',
+                    '-o', output_path, url
+                ]
+            },
+            {
+                'name': 'Generic Bypass',
+                'cmd': [
+                    'yt-dlp', '--no-warnings', '--ignore-errors',
+                    '--extractor-args', 'youtube:player_client=web',
+                    '--extractor-args', 'youtube:player_skip=configs',
+                    '--format', 'worst',
+                    '--no-check-certificates',
+                    '-o', output_path, url
+                ]
+            },
+            {
+                'name': 'Embedded Player',
+                'cmd': [
+                    'yt-dlp', '--no-warnings', '--ignore-errors',
+                    '--referer', 'https://www.youtube.com/',
+                    '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0',
+                    '--format', 'mp4/any',
+                    '-o', output_path, url
+                ]
+            }
+        ]
+        
+        for strategy in strategies:
+            try:
+                logging.info(f"Trying download strategy: {strategy['name']}")
+                result = subprocess.run(strategy['cmd'], capture_output=True, text=True, timeout=45)
+                
+                logging.info(f"Strategy {strategy['name']} result: {result.returncode}")
+                if result.stderr:
+                    logging.info(f"Strategy {strategy['name']} stderr: {result.stderr[:200]}")
+                
+                if result.returncode == 0:
+                    # Find downloaded file
+                    for file in os.listdir(self.temp_dir):
+                        if file.startswith(f'video_{video_id}') and file.endswith(('.mp4', '.mkv', '.webm', '.avi', '.mp3', '.m4a', '.3gp', '.flv')):
+                            file_path = os.path.join(self.temp_dir, file)
+                            logging.info(f"Successfully downloaded with {strategy['name']}: {file}")
+                            return {'file_path': file_path, 'filename': file}
+                            
+            except subprocess.TimeoutExpired:
+                logging.warning(f"Strategy {strategy['name']} timed out")
+                continue
+            except Exception as e:
+                logging.warning(f"Strategy {strategy['name']} failed: {str(e)}")
+                continue
+        
+        # Final attempt with youtube-dl as last resort
         try:
-            video_id = self._extract_video_id(url)
-            output_path = os.path.join(self.temp_dir, f'video_{video_id}.%(ext)s')
-            
-            # Command line with ultimate bypass
-            cmd = [
-                'yt-dlp',
-                '--no-warnings',
-                '--extractor-args', 'youtube:player_client=tv_embedded',
-                '--extractor-args', 'youtube:player_skip=js,configs',
-                '--user-agent', 'com.google.android.youtube.tv/1.0 (Linux; U; Android 9; SM-T500) gzip',
-                '-o', output_path,
-            ]
-            
-            if audio_only:
-                cmd.extend(['-f', 'bestaudio', '--extract-audio', '--audio-format', 'mp3'])
-            elif format_id:
-                cmd.extend(['-f', format_id])
-            else:
-                cmd.extend(['-f', '18/best[height<=360]/best'])
-            
-            cmd.append(url)
-            
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+            logging.info("Trying final youtube-dl fallback")
+            cmd = ['youtube-dl', '--no-warnings', '--format', 'worst', '-o', output_path, url]
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
             
             if result.returncode == 0:
-                # Find downloaded file
                 for file in os.listdir(self.temp_dir):
-                    if file.startswith(f'video_{video_id}') and file.endswith(('.mp4', '.mkv', '.webm', '.avi', '.mp3', '.m4a')):
+                    if file.startswith(f'video_{video_id}'):
                         file_path = os.path.join(self.temp_dir, file)
                         return {'file_path': file_path, 'filename': file}
+        except:
+            pass
             
-            return {'error': 'Download failed - please try a different video'}
-            
-        except Exception as e:
-            logging.error(f"Fallback download failed: {str(e)}")
-            return {'error': 'Download failed - please try a different video'}
+        return {'error': 'Download failed - please try a different video'}
