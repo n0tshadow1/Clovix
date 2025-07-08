@@ -232,12 +232,17 @@ class VideoDownloader {
                 });
             }
             
-            // Fallback if no formats available
+            // Add comprehensive quality options from 4K to 144p
             if (videoQualities.length === 0) {
                 videoQualities.push(
-                    { label: '720p', formatId: 'best[height<=720]', desc: 'HD Ready' },
-                    { label: '480p', formatId: 'best[height<=480]', desc: 'Standard' },
-                    { label: '360p', formatId: 'best[height<=360]', desc: 'Low' }
+                    { label: '4K (2160p)', formatId: 'best[height<=2160]', desc: 'Ultra HD', height: 2160 },
+                    { label: '2K (1440p)', formatId: 'best[height<=1440]', desc: 'Quad HD', height: 1440 },
+                    { label: '1080p', formatId: 'best[height<=1080]', desc: 'Full HD', height: 1080 },
+                    { label: '720p', formatId: 'best[height<=720]', desc: 'HD Ready', height: 720 },
+                    { label: '480p', formatId: 'best[height<=480]', desc: 'Standard', height: 480 },
+                    { label: '360p', formatId: 'best[height<=360]', desc: 'Low', height: 360 },
+                    { label: '240p', formatId: 'best[height<=240]', desc: 'Mobile', height: 240 },
+                    { label: '144p', formatId: 'best[height<=144]', desc: 'Data Saver', height: 144 }
                 );
             }
             
@@ -292,12 +297,15 @@ class VideoDownloader {
                 }));
             }
             
-            // Fallback formats if none available
+            // Add comprehensive format conversion options
             if (videoFormats.length === 0) {
                 videoFormats = [
-                    { format: 'mp4', label: 'MP4' },
-                    { format: 'webm', label: 'WebM' },
-                    { format: 'mkv', label: 'MKV' }
+                    { format: 'mp4', label: 'MP4', desc: 'Most Compatible' },
+                    { format: 'mkv', label: 'MKV', desc: 'High Quality' },
+                    { format: 'webm', label: 'WebM', desc: 'Web Optimized' },
+                    { format: 'avi', label: 'AVI', desc: 'Classic Format' },
+                    { format: '3gp', label: '3GP', desc: 'Mobile Device' },
+                    { format: 'flv', label: 'FLV', desc: 'Flash Video' }
                 ];
             }
             
@@ -305,7 +313,10 @@ class VideoDownloader {
                 const option = document.createElement('div');
                 option.className = 'quality-option file-format-option simple-option';
                 option.dataset.format = format.format;
-                option.textContent = format.label;
+                option.innerHTML = `
+                    <div style="font-weight: 700; font-size: 1.1rem; margin-bottom: 0.25rem;">${format.label}</div>
+                    ${format.desc ? `<div style="font-size: 0.8rem; opacity: 0.8; font-weight: 500;">${format.desc}</div>` : ''}
+                `;
                 fileFormatOptions.appendChild(option);
             });
         } else if (this.selectedFormat === 'audio') {

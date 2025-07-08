@@ -27,14 +27,14 @@ class VideoDownloader:
             cookies_content = """# Netscape HTTP Cookie File
 # This is a generated file!  Do not edit.
 
-.youtube.com	TRUE	/	FALSE	1893456000	CONSENT	YES+cb.20210328-17-p0.en-GB+FX+667
-.youtube.com	TRUE	/	TRUE	1893456000	__Secure-3PSID	g.a000rQgdGSGdjfkdjfdkjfslkdfj-VvCNTCJOBvk_7Ngh3p6gJ6g4d8w7xDm9jJ4mOcTd8Qb1K9X2cWP
-.youtube.com	TRUE	/	FALSE	1893456000	VISITOR_INFO1_LIVE	fH3p6gJ6g4d8w7x
-.youtube.com	TRUE	/	FALSE	1893456000	YSC	D4fjsklNdtjzOpA
-.google.com	TRUE	/	TRUE	1893456000	__Secure-3PAPISID	rQgdGSGdjf/A9kOHdkslNdtjzOpA
-.google.com	TRUE	/	TRUE	1893456000	__Secure-3PSID	g.a000rQgdGSGdjfkdjfdkjfslkdfj-VvCNTCJOBvk_7Ngh3p6gJ6g4d8w7xDm9jJ4mOcTd8Qb1K9X2cWP
-.google.com	TRUE	/	FALSE	1893456000	SIDCC	AKEyXzWfH3p6gJ6g4d8w7xDm9jJ4mOcTd8Qb1K9X2cWPbNdtjzOpALKJ94fjsk
-.youtube.com	TRUE	/	FALSE	1893456000	PREF	f1=50000000&f6=40000000&hl=en&gl=US&f5=30000
+.youtube.com    TRUE    /       FALSE   1893456000      CONSENT YES+cb.20210328-17-p0.en-GB+FX+667
+.youtube.com    TRUE    /       TRUE    1893456000      __Secure-3PSID  g.a000rQgdGSGdjfkdjfdkjfslkdfj-VvCNTCJOBvk_7Ngh3p6gJ6g4d8w7xDm9jJ4mOcTd8Qb1K9X2cWP
+.youtube.com    TRUE    /       FALSE   1893456000      VISITOR_INFO1_LIVE      fH3p6gJ6g4d8w7x
+.youtube.com    TRUE    /       FALSE   1893456000      YSC     D4fjsklNdtjzOpA
+.google.com     TRUE    /       TRUE    1893456000      __Secure-3PAPISID       rQgdGSGdjf/A9kOHdkslNdtjzOpA
+.google.com     TRUE    /       TRUE    1893456000      __Secure-3PSID  g.a000rQgdGSGdjfkdjfdkjfslkdfj-VvCNTCJOBvk_7Ngh3p6gJ6g4d8w7xDm9jJ4mOcTd8Qb1K9X2cWP
+.google.com     TRUE    /       FALSE   1893456000      SIDCC   AKEyXzWfH3p6gJ6g4d8w7xDm9jJ4mOcTd8Qb1K9X2cWPbNdtjzOpALKJ94fjsk
+.youtube.com    TRUE    /       FALSE   1893456000      PREF    f1=50000000&f6=40000000&hl=en&gl=US&f5=30000
 """
             
             with open(self.cookies_file, 'w') as f:
@@ -313,8 +313,35 @@ class VideoDownloader:
             return self._create_guaranteed_response(url, self._extract_video_id(url))
 
     def _get_working_formats(self):
-        """Get formats that work with authentication"""
+        """Get comprehensive formats with all quality options"""
         return [
+            {
+                'format_id': 'best[height<=2160]',
+                'height': 2160,
+                'width': 3840,
+                'ext': 'mp4',
+                'quality': '4K',
+                'vcodec': 'avc1',
+                'acodec': 'mp4a'
+            },
+            {
+                'format_id': 'best[height<=1440]',
+                'height': 1440,
+                'width': 2560,
+                'ext': 'mp4',
+                'quality': '1440p',
+                'vcodec': 'avc1',
+                'acodec': 'mp4a'
+            },
+            {
+                'format_id': 'best[height<=1080]',
+                'height': 1080,
+                'width': 1920,
+                'ext': 'mp4',
+                'quality': '1080p',
+                'vcodec': 'avc1',
+                'acodec': 'mp4a'
+            },
             {
                 'format_id': 'best[height<=720]',
                 'height': 720,
@@ -339,6 +366,24 @@ class VideoDownloader:
                 'width': 640,
                 'ext': 'mp4',
                 'quality': '360p',
+                'vcodec': 'avc1',
+                'acodec': 'mp4a'
+            },
+            {
+                'format_id': 'best[height<=240]',
+                'height': 240,
+                'width': 426,
+                'ext': 'mp4',
+                'quality': '240p',
+                'vcodec': 'avc1',
+                'acodec': 'mp4a'
+            },
+            {
+                'format_id': 'best[height<=144]',
+                'height': 144,
+                'width': 256,
+                'ext': 'mp4',
+                'quality': '144p',
                 'vcodec': 'avc1',
                 'acodec': 'mp4a'
             }
@@ -418,9 +463,15 @@ class VideoDownloader:
             return "0:00"
 
     def download_video(self, url, format_id=None, audio_only=False, file_format=None, progress_hook=None):
-        """Download video with authentication"""
+        """Download video with authentication and format conversion"""
         try:
-            output_template = os.path.join(self.temp_dir, '%(title)s.%(ext)s')
+            # Determine output format
+            target_format = file_format if file_format and file_format != 'mp4' else None
+            
+            if target_format:
+                output_template = os.path.join(self.temp_dir, '%(title)s_temp.%(ext)s')
+            else:
+                output_template = os.path.join(self.temp_dir, '%(title)s.%(ext)s')
             
             ydl_opts = {
                 'outtmpl': output_template,
@@ -459,13 +510,20 @@ class VideoDownloader:
             else:
                 ydl_opts['format'] = 'best[height<=720]/best'
             
+            # Add format conversion if needed
+            if target_format and not audio_only:
+                ydl_opts['postprocessors'] = [{
+                    'key': 'FFmpegVideoConvertor',
+                    'preferedformat': target_format,
+                }]
+            
             # Download
             with self.memory_managed_extraction(ydl_opts) as ydl:
                 ydl.download([url])
             
             # Find downloaded file
             for file in os.listdir(self.temp_dir):
-                if file.endswith(('.mp4', '.mkv', '.webm', '.avi', '.mp3', '.m4a')):
+                if file.endswith(('.mp4', '.mkv', '.webm', '.avi', '.mp3', '.m4a', '.3gp', '.flv')):
                     file_path = os.path.join(self.temp_dir, file)
                     return {'file_path': file_path, 'filename': file}
             
@@ -477,12 +535,12 @@ class VideoDownloader:
             
             # Try fallback with command line
             if "sign in" in error_msg.lower() or "cookies" in error_msg.lower():
-                return self._download_with_cmdline_auth(url, format_id, audio_only)
+                return self._download_with_cmdline_auth(url, format_id, audio_only, file_format)
             else:
                 return {'error': f'Download failed: {error_msg}'}
 
-    def _download_with_cmdline_auth(self, url, format_id, audio_only):
-        """Download using command line with authentication"""
+    def _download_with_cmdline_auth(self, url, format_id, audio_only, file_format=None):
+        """Download using command line with authentication and format conversion"""
         try:
             video_id = self._extract_video_id(url)
             output_path = os.path.join(self.temp_dir, f'video_{video_id}.%(ext)s')
@@ -503,13 +561,17 @@ class VideoDownloader:
             else:
                 cmd.extend(['-f', 'best[height<=720]/best'])
             
+            # Add format conversion if needed
+            if file_format and file_format != 'mp4' and not audio_only:
+                cmd.extend(['--recode-video', file_format])
+            
             cmd.append(url)
             
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=90)
             
             if result.returncode == 0:
                 for file in os.listdir(self.temp_dir):
-                    if file.startswith(f'video_{video_id}') and file.endswith(('.mp4', '.mkv', '.webm', '.avi', '.mp3', '.m4a')):
+                    if file.startswith(f'video_{video_id}') and file.endswith(('.mp4', '.mkv', '.webm', '.avi', '.mp3', '.m4a', '.3gp', '.flv')):
                         file_path = os.path.join(self.temp_dir, file)
                         return {'file_path': file_path, 'filename': file}
             
