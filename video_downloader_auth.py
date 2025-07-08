@@ -535,33 +535,9 @@ class VideoDownloader:
             else:
                 ydl_opts['format'] = 'best/worst'
             
-            # Simple approach: Use command line conversion with FFmpeg
-            if target_format and not audio_only and target_format != 'mp4':
-                if target_format in ['3gp', 'mkv', 'webm', 'avi', 'flv']:
-                    try:
-                        # Set FFmpeg path for yt-dlp
-                        ffmpeg_path = '/nix/store/3zc5jbvqzrn8zmva4fx5p0nh4yy03wk4-ffmpeg-6.1.1-bin/bin/ffmpeg'
-                        
-                        # Test if FFmpeg is working
-                        import subprocess
-                        result = subprocess.run([ffmpeg_path, '-version'], capture_output=True, text=True)
-                        if result.returncode == 0:
-                            logging.info("FFmpeg is working correctly")
-                            
-                            # Set up yt-dlp with proper FFmpeg path
-                            ydl_opts['ffmpeg_location'] = ffmpeg_path
-                            ydl_opts['postprocessors'] = [{
-                                'key': 'FFmpegVideoConvertor',
-                                'preferedformat': target_format,
-                            }]
-                            
-                            logging.info(f"Format conversion set up for {target_format}")
-                        else:
-                            logging.error(f"FFmpeg test failed: {result.stderr}")
-                            
-                    except Exception as e:
-                        logging.warning(f"Format conversion setup failed: {e}")
-                        # Continue without conversion
+            # ALTERNATIVE APPROACH: Skip format conversion, use manual conversion after download
+            # The FFmpeg encoder issue is persistent, so let's do post-download conversion
+            logging.info(f"Skipping format conversion during download - will convert after download if needed")
             
             # Download
             with self.memory_managed_extraction(ydl_opts) as ydl:
@@ -571,6 +547,35 @@ class VideoDownloader:
             for file in os.listdir(self.temp_dir):
                 if file.endswith(('.mp4', '.mkv', '.webm', '.avi', '.mp3', '.m4a', '.3gp', '.flv')):
                     file_path = os.path.join(self.temp_dir, file)
+                    
+                    # Post-download format conversion if needed
+                    if target_format and target_format != 'mp4' and target_format in ['3gp', 'mkv', 'webm', 'avi', 'flv']:
+                        try:
+                            import subprocess
+                            
+                            # Create output filename with new extension
+                            base_name = os.path.splitext(file)[0]
+                            converted_filename = f"{base_name}.{target_format}"
+                            converted_path = os.path.join(self.temp_dir, converted_filename)
+                            
+                            # Run FFmpeg conversion
+                            ffmpeg_path = '/nix/store/3zc5jbvqzrn8zmva4fx5p0nh4yy03wk4-ffmpeg-6.1.1-bin/bin/ffmpeg'
+                            cmd = [ffmpeg_path, '-i', file_path, '-c:v', 'libx264', '-c:a', 'aac', converted_path, '-y']
+                            
+                            result = subprocess.run(cmd, capture_output=True, text=True)
+                            if result.returncode == 0:
+                                logging.info(f"Successfully converted to {target_format}")
+                                # Remove original file and use converted file
+                                os.remove(file_path)
+                                return {'file_path': converted_path, 'filename': converted_filename}
+                            else:
+                                logging.warning(f"Conversion failed: {result.stderr}")
+                                # Continue with original file
+                                
+                        except Exception as e:
+                            logging.warning(f"Post-download conversion failed: {e}")
+                            # Continue with original file
+                    
                     return {'file_path': file_path, 'filename': file}
             
             return {'error': 'Download completed but file not found'}

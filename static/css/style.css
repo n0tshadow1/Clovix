@@ -758,9 +758,9 @@ body::after {
         /* FORCE WIDE HORIZONTAL BUTTONS */
         padding: 0.8rem 1rem !important;
         font-size: 1.1rem !important;
-        min-height: 42px !important;
-        max-height: 42px !important;
-        height: 42px !important;
+        min-height: 35px !important;
+        max-height: 35px !important;
+        height: 35px !important;
         width: 100% !important;
         font-weight: 700 !important;
         margin: 0 !important;
@@ -1576,9 +1576,9 @@ footer .container {
         padding: 0.7rem 0.8rem !important;
         font-size: 1rem !important;
         margin: 0 !important;
-        min-height: 38px !important;
-        max-height: 38px !important;
-        height: 38px !important;
+        min-height: 32px !important;
+        max-height: 32px !important;
+        height: 32px !important;
         width: 100% !important;
         display: flex !important;
         align-items: center !important;
