@@ -508,8 +508,9 @@ class VideoDownloader:
             elif format_id:
                 # Fix height-based selectors that cause format errors
                 if format_id.startswith('best[height<='):
-                    # Use simple fallback for height-based selection
-                    ydl_opts['format'] = 'best/worst'
+                    # Extract height and use working format
+                    height = format_id.split('<=')[1].split(']')[0]
+                    ydl_opts['format'] = f'best[height<={height}]/worst[height<={height}]/best/worst'
                 else:
                     ydl_opts['format'] = format_id
             else:
@@ -517,10 +518,14 @@ class VideoDownloader:
             
             # Add format conversion if needed
             if target_format and not audio_only:
-                ydl_opts['postprocessors'] = [{
-                    'key': 'FFmpegVideoConvertor',
-                    'preferedformat': target_format,
-                }]
+                # Only add conversion if we have a valid target format
+                if target_format in ['3gp', 'mkv', 'webm', 'avi', 'flv']:
+                    ydl_opts['postprocessors'] = [{
+                        'key': 'FFmpegVideoConvertor',
+                        'preferedformat': target_format,
+                    }]
+                    # Add FFmpeg path - use system FFmpeg
+                    ydl_opts['ffmpeg_location'] = '/nix/store/3zc5jbvqzrn8zmva4fx5p0nh4yy03wk4-ffmpeg-6.1.1-bin/bin/ffmpeg'
             
             # Download
             with self.memory_managed_extraction(ydl_opts) as ydl:
