@@ -497,7 +497,7 @@ class VideoDownloader:
                     }
                 })
             
-            # Format selection with better fallbacks
+            # Enhanced format selection with proper fallbacks
             if audio_only:
                 ydl_opts['format'] = 'bestaudio/best'
                 ydl_opts['postprocessors'] = [{
@@ -506,20 +506,32 @@ class VideoDownloader:
                     'preferredquality': '192',
                 }]
             elif format_id:
-                # Use working format selectors
+                # Enhanced quality format selection
                 if format_id == 'best':
-                    ydl_opts['format'] = 'best'
+                    ydl_opts['format'] = 'best[height<=2160]/best'
                 elif format_id == 'worst':
-                    ydl_opts['format'] = 'worst'
+                    ydl_opts['format'] = 'worst[height>=144]/worst'
                 elif format_id.startswith('best[height<='):
-                    # Use simpler format that works
+                    # Extract height and create robust format string
                     height = format_id.split('<=')[1].split(']')[0]
-                    if int(height) >= 720:
-                        ydl_opts['format'] = 'best'
+                    height_num = int(height)
+                    
+                    # Create fallback chain for better quality matching
+                    if height_num >= 1440:
+                        ydl_opts['format'] = f'best[height<={height}]/best[height<=1440]/best[height<=1080]/best'
+                    elif height_num >= 1080:
+                        ydl_opts['format'] = f'best[height<={height}]/best[height<=1080]/best[height<=720]/best'
+                    elif height_num >= 720:
+                        ydl_opts['format'] = f'best[height<={height}]/best[height<=720]/best[height<=480]/best'
+                    elif height_num >= 480:
+                        ydl_opts['format'] = f'best[height<={height}]/best[height<=480]/best[height<=360]/best'
+                    elif height_num >= 360:
+                        ydl_opts['format'] = f'best[height<={height}]/best[height<=360]/best[height<=240]/best'
                     else:
                         ydl_opts['format'] = f'best[height<={height}]/worst'
                 else:
-                    ydl_opts['format'] = format_id
+                    # Use direct format ID with fallbacks
+                    ydl_opts['format'] = f'{format_id}/best/worst'
             else:
                 ydl_opts['format'] = 'best/worst'
             
