@@ -246,42 +246,114 @@ class VideoDownloader:
                 else:
                     ydl_opts['format'] = 'best[height<=1080]/best'
                 
-                # FIXED: Enhanced format conversion with proper codec settings
+                # FIXED: Enhanced format conversion with proper codec settings and fallback strategy
                 if file_format and file_format not in ['mp4']:
+                    # Try conversion with fallback to direct download
+                    conversion_strategies = []
+                    
                     if file_format == '3gp':
-                        ydl_opts['postprocessors'] = [{
-                            'key': 'FFmpegVideoConvertor',
-                            'preferedformat': '3gp',
-                        }]
-                    elif file_format in ['mkv', 'webm', 'avi']:
-                        ydl_opts['postprocessors'] = [{
-                            'key': 'FFmpegVideoConvertor',
-                            'preferedformat': file_format,
-                        }]
-                    logging.info(f"Converting to format: {file_format}")
+                        conversion_strategies = [
+                            {
+                                'key': 'FFmpegVideoConverter',
+                                'preferredformat': '3gp',
+                            },
+                            # Fallback: Use direct format selection
+                            None
+                        ]
+                    elif file_format in ['mkv', 'webm', 'avi', 'flv']:
+                        conversion_strategies = [
+                            {
+                                'key': 'FFmpegVideoConverter',
+                                'preferredformat': file_format,
+                            },
+                            # Fallback: Use direct format selection
+                            None
+                        ]
+                    
+                    # Try conversion first, then fallback
+                    for strategy in conversion_strategies:
+                        try:
+                            temp_ydl_opts = ydl_opts.copy()
+                            if strategy:
+                                temp_ydl_opts['postprocessors'] = [strategy]
+                                logging.info(f"Attempting conversion to format: {file_format}")
+                            else:
+                                logging.info(f"Fallback: Direct download without conversion")
+                            
+                            with self.memory_managed_extraction(temp_ydl_opts) as ydl:
+                                ydl.download([url])
+                            
+                            # Find the downloaded file
+                            for filename in os.listdir(self.temp_dir):
+                                if os.path.isfile(os.path.join(self.temp_dir, filename)):
+                                    file_path = os.path.join(self.temp_dir, filename)
+                                    logging.info(f"Download completed successfully: {filename}")
+                                    return {'file_path': file_path, 'filename': filename}
+                            
+                            break  # Success, exit loop
+                            
+                        except Exception as conv_e:
+                            logging.warning(f"Conversion attempt failed: {str(conv_e)}")
+                            if strategy is None:  # Last fallback failed
+                                raise conv_e
+                            continue  # Try next strategy
+                
                 else:
                     logging.info(f"Downloading as MP4")
             
-            # Simplified format selection - no complex fallbacks
-            logging.info(f"Final download format: {ydl_opts['format']}")
-            
-            logging.info(f"Starting download with format: {ydl_opts['format']}")
-            
-            with self.memory_managed_extraction(ydl_opts) as ydl:
-                ydl.download([url])
-            
-            # Find the downloaded file
-            for filename in os.listdir(self.temp_dir):
-                if os.path.isfile(os.path.join(self.temp_dir, filename)):
-                    file_path = os.path.join(self.temp_dir, filename)
-                    logging.info(f"Download completed successfully: {filename}")
-                    return {'file_path': file_path, 'filename': filename}
+            # Regular download without conversion
+            if file_format in ['mp4'] or not file_format:
+                logging.info(f"Final download format: {ydl_opts['format']}")
+                logging.info(f"Starting download with format: {ydl_opts['format']}")
+                
+                with self.memory_managed_extraction(ydl_opts) as ydl:
+                    ydl.download([url])
+                
+                # Find the downloaded file
+                for filename in os.listdir(self.temp_dir):
+                    if os.path.isfile(os.path.join(self.temp_dir, filename)):
+                        file_path = os.path.join(self.temp_dir, filename)
+                        logging.info(f"Download completed successfully: {filename}")
+                        return {'file_path': file_path, 'filename': filename}
             
             return {'error': 'Download completed but file not found'}
             
         except Exception as e:
             error_msg = str(e)
             logging.error(f"Download failed: {error_msg}")
+            
+            # Enhanced error handling for common issues
+            if 'Postprocessing' in error_msg and 'Conversion failed' in error_msg:
+                # Try direct download without conversion
+                try:
+                    logging.info("Attempting direct download without conversion due to conversion failure")
+                    simple_opts = {
+                        'quiet': True,
+                        'no_warnings': True,
+                        'outtmpl': os.path.join(self.temp_dir, '%(title)s.%(ext)s'),
+                        'format': format_id if format_id else 'best[height<=1080]/best',
+                        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'socket_timeout': 30,
+                        'retries': 2,
+                    }
+                    
+                    if progress_hook:
+                        simple_opts['progress_hooks'] = [progress_hook]
+                    
+                    with self.memory_managed_extraction(simple_opts) as ydl:
+                        ydl.download([url])
+                    
+                    # Find the downloaded file
+                    for filename in os.listdir(self.temp_dir):
+                        if os.path.isfile(os.path.join(self.temp_dir, filename)):
+                            file_path = os.path.join(self.temp_dir, filename)
+                            logging.info(f"Fallback download completed successfully: {filename}")
+                            return {'file_path': file_path, 'filename': filename}
+                    
+                except Exception as fallback_e:
+                    logging.error(f"Fallback download also failed: {str(fallback_e)}")
+                    return {'error': f'Download failed even with fallback: {str(fallback_e)}'}
+            
             return {'error': f'Download failed: {error_msg}'}
 
     def _extract_video_id(self, url):
