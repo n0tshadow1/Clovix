@@ -391,9 +391,19 @@ class VideoDownloader {
 
         this.progressInterval = setInterval(async () => {
             try {
-                const response = await fetch(`/get_download_progress/${this.currentDownloadId}`);
+                const response = await fetch(`/download_progress/${this.currentDownloadId}`);
                 const data = await response.json();
 
+                console.log('Progress data received:', data);
+                
+                if (data.error) {
+                    console.error('Download error:', data.error);
+                    clearInterval(this.progressInterval);
+                    this.showError(data.error);
+                    this.hideDownloadProgress();
+                    return;
+                }
+                
                 if (data.progress !== undefined) {
                     this.updateProgress(data.progress, data.status || 'Downloading...');
 
@@ -402,6 +412,8 @@ class VideoDownloader {
                         this.showDownloadComplete();
                         this.triggerFileDownload();
                     }
+                } else {
+                    console.log('No progress data available yet');
                 }
             } catch (error) {
                 console.error('Progress tracking error:', error);
