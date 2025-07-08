@@ -242,13 +242,17 @@ class VideoDownloader {
             let formatId = 'best';
             let fileFormat = 'mp4';
             
+            // CHECK if advanced options panel is open and has selections
+            const advancedPanel = document.getElementById('advanced-options');
+            const hasAdvancedSelection = advancedPanel && advancedPanel.style.display !== 'none';
+            
             if (this.selectedType === 'audio') {
-                formatId = qualitySelect?.value || 'bestaudio';
-                fileFormat = formatSelect?.value || 'mp3';
+                formatId = (hasAdvancedSelection && qualitySelect?.value) ? qualitySelect.value : 'bestaudio';
+                fileFormat = (hasAdvancedSelection && formatSelect?.value) ? formatSelect.value : 'mp3';
             } else {
-                // For video, use selected quality and format from dropdowns
-                formatId = qualitySelect?.value || 'best[height<=720]/best';
-                fileFormat = formatSelect?.value || 'mp4';
+                // For video, use selected quality and format from dropdowns if available
+                formatId = (hasAdvancedSelection && qualitySelect?.value) ? qualitySelect.value : 'best[height<=720]/best';
+                fileFormat = (hasAdvancedSelection && formatSelect?.value) ? formatSelect.value : 'mp4';
             }
 
             console.log('Quick download with:', {
