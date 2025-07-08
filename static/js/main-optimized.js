@@ -248,22 +248,43 @@ class VideoDownloader {
             let formatId = 'best';
             let fileFormat = 'mp4';
             
-            // ALWAYS use selected values from dropdowns (force populate first)
-            if (this.selectedType === 'audio') {
-                formatId = qualitySelect?.value || 'bestaudio';
-                fileFormat = formatSelect?.value || 'mp3';
-            } else {
-                // For video, ALWAYS use selected quality and format from dropdowns
-                formatId = qualitySelect?.value || 'best[height<=720]';
-                fileFormat = formatSelect?.value || 'mp4';
-            }
+            // FORCE populate dropdowns first, then use selected values
+            this.populateAdvancedOptions();
+            
+            // Wait for population to complete, then get fresh values
+            setTimeout(() => {
+                const freshQualitySelect = document.getElementById('quality-select');
+                const freshFormatSelect = document.getElementById('format-select');
+                
+                if (this.selectedType === 'audio') {
+                    formatId = freshQualitySelect?.value || 'bestaudio';
+                    fileFormat = freshFormatSelect?.value || 'mp3';
+                } else {
+                    // For video, ALWAYS use selected quality and format from dropdowns
+                    formatId = freshQualitySelect?.value || 'best[height<=720]';
+                    fileFormat = freshFormatSelect?.value || 'mp4';
+                }
+                
+                // Continue with download using fresh values
+                this.executeQuickDownload(formatId, fileFormat);
+            }, 100);
+            
+            return; // Exit here, executeQuickDownload will handle the rest
+        } catch (error) {
+            this.showError(error.message);
+            this.hideDownloadProgress();
+        }
+    }
 
+    async executeQuickDownload(formatId, fileFormat) {
+        const activeForm = document.querySelector('.tab-pane.active .url-form');
+        const url = activeForm.querySelector('.video-url').value.trim();
+
+        try {
             console.log('Quick download with:', {
                 formatId,
                 fileFormat,
-                selectedType: this.selectedType,
-                qualityValue: qualitySelect?.value,
-                formatValue: formatSelect?.value
+                selectedType: this.selectedType
             });
 
             const response = await fetch('/download_video', {
