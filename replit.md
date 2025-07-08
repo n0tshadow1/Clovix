@@ -226,6 +226,7 @@ Preferred communication style: Simple, everyday language.
 - **Enhanced mobile layout** - Added mobile-specific CSS for better button spacing and progress display
 - **Improved user experience** - Streamlined interface with reduced visual complexity and better mobile usability
 - **Removed checkmark icon** - Eliminated checkmark (✓) from quality selection options for cleaner interface per user request
+- **Fixed mobile Video/Audio layout** - Ensured Video and Audio buttons stay side by side (|Video| |Audio|) instead of stacking vertically on mobile
 
 ### July 06, 2025 - UI/UX Consistency & Mobile Optimization
 - **Made project fully compatible with Vercel hosting platform**

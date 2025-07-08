@@ -709,6 +709,31 @@ body::after {
         min-height: 50px;
         font-size: 0.9rem;
     }
+    
+    /* Force Video/Audio buttons to stay side by side on mobile */
+    .format-type-option {
+        padding: 0.8rem !important;
+        font-size: 0.9rem !important;
+        min-height: 50px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    /* Ensure row with Video/Audio buttons stays horizontal */
+    .row.g-2 {
+        display: flex !important;
+        flex-direction: row !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    
+    .row.g-2 .col-6 {
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+        padding-left: 0.25rem !important;
+        padding-right: 0.25rem !important;
+    }
 }
 
 /* Format type selection (Video/Audio) */
