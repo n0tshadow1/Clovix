@@ -366,51 +366,91 @@ class VideoDownloader:
                     conversion_strategies = []
                     
                     if file_format == '3gp':
-                        conversion_strategies = [
-                            {
-                                'key': 'FFmpegVideoConvertor',
-                                'preferedformat': '3gp',
-                            },
-                            # Fallback: Use direct format selection
-                            None
-                        ]
+                        # Use direct output template approach for 3GP
+                        temp_ydl_opts = ydl_opts.copy()
+                        temp_ydl_opts['outtmpl'] = os.path.join(self.temp_dir, '%(title)s.3gp')
+                        temp_ydl_opts['postprocessors'] = [{
+                            'key': 'ExecAfterDownload',
+                            'exec_cmd': f'ffmpeg -i {{}} -c:v libx264 -c:a aac -f 3gp {os.path.join(self.temp_dir, "%(title)s.3gp")} && rm {{}}'
+                        }]
+                        
+                        logging.info(f"Converting to 3GP format using FFmpeg")
+                        
+                        with self.memory_managed_extraction(temp_ydl_opts) as ydl:
+                            ydl.download([url])
+                        
+                        # Find the converted file
+                        for filename in os.listdir(self.temp_dir):
+                            if filename.endswith('.3gp') and os.path.isfile(os.path.join(self.temp_dir, filename)):
+                                file_path = os.path.join(self.temp_dir, filename)
+                                logging.info(f"3GP conversion completed successfully: {filename}")
+                                return {'file_path': file_path, 'filename': filename}
+                        
+                        # If 3GP conversion failed, try direct conversion
+                        logging.warning("3GP conversion failed, trying direct FFmpeg conversion")
+                        
+                        # Find original MP4 file and convert it
+                        for filename in os.listdir(self.temp_dir):
+                            if filename.endswith('.mp4') and os.path.isfile(os.path.join(self.temp_dir, filename)):
+                                mp4_path = os.path.join(self.temp_dir, filename)
+                                gp3_path = os.path.join(self.temp_dir, filename.replace('.mp4', '.3gp'))
+                                
+                                try:
+                                    import subprocess
+                                    result = subprocess.run([
+                                        'ffmpeg', '-i', mp4_path, 
+                                        '-c:v', 'libx264', '-c:a', 'aac', 
+                                        '-f', '3gp', gp3_path
+                                    ], capture_output=True, text=True)
+                                    
+                                    if result.returncode == 0 and os.path.exists(gp3_path):
+                                        logging.info(f"Direct FFmpeg conversion to 3GP successful: {os.path.basename(gp3_path)}")
+                                        return {'file_path': gp3_path, 'filename': os.path.basename(gp3_path)}
+                                    else:
+                                        logging.error(f"FFmpeg conversion failed: {result.stderr}")
+                                except Exception as e:
+                                    logging.error(f"FFmpeg conversion error: {str(e)}")
+                        
+                        # If all conversions fail, return original MP4
+                        logging.warning("All 3GP conversion attempts failed, returning original MP4")
+                        conversion_strategies = [None]  # Skip to fallback
+                        
                     elif file_format in ['mkv', 'webm', 'avi', 'flv']:
-                        conversion_strategies = [
-                            {
-                                'key': 'FFmpegVideoConvertor', 
-                                'preferedformat': file_format,
-                            },
-                            # Fallback: Use direct format selection
-                            None
-                        ]
+                        # Use direct FFmpeg conversion for other formats
+                        temp_ydl_opts = ydl_opts.copy()
+                        
+                        logging.info(f"Converting to {file_format} format using direct download")
+                        
+                        with self.memory_managed_extraction(temp_ydl_opts) as ydl:
+                            ydl.download([url])
+                        
+                        # Find downloaded file and convert
+                        for filename in os.listdir(self.temp_dir):
+                            if filename.endswith('.mp4') and os.path.isfile(os.path.join(self.temp_dir, filename)):
+                                mp4_path = os.path.join(self.temp_dir, filename)
+                                new_path = os.path.join(self.temp_dir, filename.replace('.mp4', f'.{file_format}'))
+                                
+                                try:
+                                    import subprocess
+                                    result = subprocess.run([
+                                        'ffmpeg', '-i', mp4_path, 
+                                        '-c', 'copy', new_path
+                                    ], capture_output=True, text=True)
+                                    
+                                    if result.returncode == 0 and os.path.exists(new_path):
+                                        logging.info(f"Direct FFmpeg conversion to {file_format} successful: {os.path.basename(new_path)}")
+                                        return {'file_path': new_path, 'filename': os.path.basename(new_path)}
+                                    else:
+                                        logging.error(f"FFmpeg conversion failed: {result.stderr}")
+                                except Exception as e:
+                                    logging.error(f"FFmpeg conversion error: {str(e)}")
+                        
+                        # If conversion fails, return original
+                        logging.warning(f"{file_format} conversion failed, returning original")
+                        conversion_strategies = [None]  # Skip to fallback
                     
-                    # Try conversion first, then fallback
-                    for strategy in conversion_strategies:
-                        try:
-                            temp_ydl_opts = ydl_opts.copy()
-                            if strategy:
-                                temp_ydl_opts['postprocessors'] = [strategy]
-                                logging.info(f"Attempting conversion to format: {file_format}")
-                            else:
-                                logging.info(f"Fallback: Direct download without conversion")
-                            
-                            with self.memory_managed_extraction(temp_ydl_opts) as ydl:
-                                ydl.download([url])
-                            
-                            # Find the downloaded file
-                            for filename in os.listdir(self.temp_dir):
-                                if os.path.isfile(os.path.join(self.temp_dir, filename)):
-                                    file_path = os.path.join(self.temp_dir, filename)
-                                    logging.info(f"Download completed successfully: {filename}")
-                                    return {'file_path': file_path, 'filename': filename}
-                            
-                            break  # Success, exit loop
-                            
-                        except Exception as conv_e:
-                            logging.warning(f"Conversion attempt failed: {str(conv_e)}")
-                            if strategy is None:  # Last fallback failed
-                                raise conv_e
-                            continue  # Try next strategy
+                    # Conversion already handled above for specific formats
+                    pass
                 
                 else:
                     logging.info(f"Downloading as MP4")
