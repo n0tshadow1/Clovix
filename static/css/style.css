@@ -1520,12 +1520,32 @@ footer .container {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 8px;
-    padding: 0.75rem;
+    padding: 0.75rem 0.5rem;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
     color: rgba(255, 255, 255, 0.8);
     font-weight: 500;
+    margin: 0.25rem;
+    min-height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+}
+
+/* Mobile responsive format options */
+@media (max-width: 576px) {
+    .format-type-option {
+        padding: 0.6rem 0.4rem;
+        font-size: 0.85rem;
+        margin: 0.2rem;
+        min-height: 2.5rem;
+    }
+    
+    .format-type-option i {
+        font-size: 0.8rem;
+    }
 }
 
 .format-type-option:hover {
