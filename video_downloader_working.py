@@ -266,13 +266,11 @@ class VideoDownloader:
             return "0:00"
 
     def download_video(self, url, format_id=None, audio_only=False, file_format=None, progress_hook=None):
-        """Download video with platform-specific handling"""
+        """Download video with advanced anti-detection for YouTube"""
         
-        # Special handling for YouTube (server blocked)
+        # Advanced YouTube bypass strategies
         if 'youtube.com' in url or 'youtu.be' in url:
-            return {
-                'error': 'YouTube downloads are currently blocked on this server. Please try Instagram, TikTok, Facebook, or other platforms.'
-            }
+            return self._download_youtube_with_advanced_bypass(url, format_id, audio_only, file_format, progress_hook)
         
         # Handle other platforms normally
         try:
@@ -316,3 +314,144 @@ class VideoDownloader:
             error_msg = str(e)
             logging.error(f"Download failed: {error_msg}")
             return {'error': f'Download failed: {error_msg}'}
+
+    def _download_youtube_with_advanced_bypass(self, url, format_id, audio_only, file_format, progress_hook):
+        """Advanced YouTube download with multiple bypass strategies"""
+        video_id = self._extract_video_id(url)
+        output_path = os.path.join(self.temp_dir, f'video_{video_id}.%(ext)s')
+        
+        # Advanced bypass strategies with rotating user agents and clients
+        strategies = [
+            {
+                'name': 'Embedded Player Bypass',
+                'cmd': [
+                    'yt-dlp', '--no-warnings', '--ignore-errors',
+                    '--extractor-args', 'youtube:player_client=web_embedded',
+                    '--referer', 'https://www.youtube.com/embed/',
+                    '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    '--add-header', 'Origin:https://www.youtube.com',
+                    '--add-header', 'Sec-Fetch-Site:same-origin',
+                    '--format', 'worst[ext=mp4]/worst',
+                    '--no-check-certificates',
+                    '-o', output_path, url
+                ]
+            },
+            {
+                'name': 'Android Client Bypass',
+                'cmd': [
+                    'yt-dlp', '--no-warnings', '--ignore-errors',
+                    '--extractor-args', 'youtube:player_client=android',
+                    '--user-agent', 'com.google.android.youtube/17.31.35 (Linux; U; Android 11) gzip',
+                    '--add-header', 'X-YouTube-Client-Name:3',
+                    '--add-header', 'X-YouTube-Client-Version:17.31.35',
+                    '--format', 'worst[height<=480]/worst',
+                    '-o', output_path, url
+                ]
+            },
+            {
+                'name': 'iOS Music Client',
+                'cmd': [
+                    'yt-dlp', '--no-warnings', '--ignore-errors',
+                    '--extractor-args', 'youtube:player_client=ios_music',
+                    '--user-agent', 'com.google.ios.youtubemusic/4.32.1 (iPhone14,3; U; CPU OS 15_6 like Mac OS X)',
+                    '--format', 'worst[ext=mp4]',
+                    '-o', output_path, url
+                ]
+            },
+            {
+                'name': 'TV Client Bypass',
+                'cmd': [
+                    'yt-dlp', '--no-warnings', '--ignore-errors',
+                    '--extractor-args', 'youtube:player_client=tv_embedded',
+                    '--extractor-args', 'youtube:player_skip=js,configs',
+                    '--user-agent', 'Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/537.36',
+                    '--format', 'worst[ext=mp4]/worst',
+                    '-o', output_path, url
+                ]
+            },
+            {
+                'name': 'Web Creator Bypass',
+                'cmd': [
+                    'yt-dlp', '--no-warnings', '--ignore-errors',
+                    '--extractor-args', 'youtube:player_client=web_creator',
+                    '--referer', 'https://studio.youtube.com/',
+                    '--user-agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+                    '--format', 'worst',
+                    '-o', output_path, url
+                ]
+            },
+            {
+                'name': 'Bypass with Cookies Simulation',
+                'cmd': [
+                    'yt-dlp', '--no-warnings', '--ignore-errors',
+                    '--extractor-args', 'youtube:player_client=web',
+                    '--add-header', 'Cookie:CONSENT=YES+cb.20210328-17-p0.en+FX+667',
+                    '--user-agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    '--format', 'worst[height<=360]',
+                    '-o', output_path, url
+                ]
+            }
+        ]
+        
+        # Try each strategy with random delay to avoid rate limiting
+        for i, strategy in enumerate(strategies):
+            try:
+                # Add random delay between attempts
+                if i > 0:
+                    time.sleep(random.uniform(2, 5))
+                
+                logging.info(f"Trying YouTube bypass strategy: {strategy['name']}")
+                
+                # Run with timeout
+                result = subprocess.run(
+                    strategy['cmd'], 
+                    capture_output=True, 
+                    text=True, 
+                    timeout=60,
+                    cwd=self.temp_dir
+                )
+                
+                logging.info(f"Strategy {strategy['name']} exit code: {result.returncode}")
+                
+                if result.returncode == 0:
+                    # Look for downloaded file
+                    for file in os.listdir(self.temp_dir):
+                        if file.startswith(f'video_{video_id}') and file.endswith(('.mp4', '.mkv', '.webm', '.avi', '.3gp', '.flv')):
+                            file_path = os.path.join(self.temp_dir, file)
+                            logging.info(f"SUCCESS: Downloaded with {strategy['name']}: {file}")
+                            return {'file_path': file_path, 'filename': file}
+                
+                # Log error for debugging
+                if result.stderr and not ("sign in" in result.stderr.lower() or "bot" in result.stderr.lower()):
+                    logging.info(f"Strategy {strategy['name']} stderr: {result.stderr[:150]}")
+                    
+            except subprocess.TimeoutExpired:
+                logging.warning(f"Strategy {strategy['name']} timed out")
+                continue
+            except Exception as e:
+                logging.warning(f"Strategy {strategy['name']} exception: {str(e)}")
+                continue
+        
+        # Final fallback with youtube-dl
+        try:
+            logging.info("Trying final youtube-dl bypass")
+            cmd = [
+                'youtube-dl', '--no-warnings', 
+                '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0',
+                '--referer', 'https://www.google.com/',
+                '--format', 'worst[ext=mp4]/worst',
+                '-o', output_path, url
+            ]
+            
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=45)
+            
+            if result.returncode == 0:
+                for file in os.listdir(self.temp_dir):
+                    if file.startswith(f'video_{video_id}'):
+                        file_path = os.path.join(self.temp_dir, file)
+                        logging.info(f"SUCCESS: Downloaded with youtube-dl: {file}")
+                        return {'file_path': file_path, 'filename': file}
+        except:
+            pass
+        
+        return {'error': 'All YouTube bypass strategies failed. This may be due to temporary server restrictions.'}
