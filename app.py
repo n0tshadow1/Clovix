@@ -254,27 +254,28 @@ def download_file(download_id):
             logging.error(f"No progress data found for download_id: {download_id}")
             return jsonify({'error': 'Download not found'}), 404
             
-        if 'filename' not in progress:
-            logging.error(f"No filename in progress data for download_id: {download_id}")
+        # Check both filename and file_path for backward compatibility
+        file_path = progress.get('file_path') or progress.get('filename')
+        if not file_path:
+            logging.error(f"No file path in progress data for download_id: {download_id}")
             return jsonify({'error': 'File not ready'}), 404
         
-        filename = progress['filename']
-        logging.info(f"Attempting to serve file: {filename}")
+        logging.info(f"Attempting to serve file: {file_path}")
         
-        if not os.path.exists(filename):
-            logging.error(f"File does not exist: {filename}")
+        if not os.path.exists(file_path):
+            logging.error(f"File does not exist: {file_path}")
             return jsonify({'error': 'File not found on disk'}), 404
         
         # Ensure we're not downloading JSON files
-        if filename.endswith('.json') or filename.endswith('.info') or filename.endswith('.description'):
-            logging.error(f"Invalid file type: {filename}")
+        if file_path.endswith('.json') or file_path.endswith('.info') or file_path.endswith('.description'):
+            logging.error(f"Invalid file type: {file_path}")
             return jsonify({'error': 'Invalid file type - video file not found'}), 404
         
         # Get original filename for download
-        original_name = os.path.basename(filename)
-        logging.info(f"Serving file: {filename} as: {original_name}")
+        original_name = os.path.basename(file_path)
+        logging.info(f"Serving file: {file_path} as: {original_name}")
         
-        return send_file(filename, as_attachment=True, download_name=original_name)
+        return send_file(file_path, as_attachment=True, download_name=original_name)
     
     except Exception as e:
         logging.error(f"Error downloading file: {str(e)}")

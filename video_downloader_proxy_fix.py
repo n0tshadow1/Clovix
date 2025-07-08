@@ -32,17 +32,131 @@ class VideoDownloader:
     def get_video_info(self, url):
         """Extract video information with platform-specific handling"""
         if 'youtube.com' in url or 'youtu.be' in url:
-            return self._handle_youtube_blocked(url)
+            return self._get_youtube_info_with_bypass(url)
         else:
             return self._get_video_info_other_platforms(url)
 
-    def _handle_youtube_blocked(self, url):
-        """Handle YouTube with server blocking - provide notification"""
-        video_id = self._extract_video_id(url)
+    def _get_youtube_info_with_bypass(self, url):
+        """Ultimate YouTube extraction that bypasses IP blocking using multiple strategies"""
         
-        # Return a working response for UI but notify about blocking
+        # Extract video ID from URL
+        video_id = self._extract_video_id(url)
+        if not video_id:
+            return {'error': 'Could not extract video ID from URL'}
+        
+        # Strategy 1: Advanced bypass strategies with different clients
+        bypass_strategies = [
+            {
+                'name': 'Android TV Embedded (No Auth)',
+                'opts': {
+                    'quiet': True,
+                    'no_warnings': True,
+                    'extract_flat': False,
+                    'user_agent': 'com.google.android.youtube.tv/1.0 (Linux; U; Android 9; SM-T500) gzip',
+                    'extractor_args': {
+                        'youtube': {
+                            'player_client': ['android_tv'],
+                            'player_skip': ['configs'],
+                            'skip': ['dash', 'hls', 'translated_subs'],
+                            'lang': ['en'],
+                            'innertube_host': 'www.youtube.com',
+                        }
+                    },
+                    'socket_timeout': 15,
+                    'retries': 1,
+                }
+            },
+            {
+                'name': 'TV Embedded Client (Universal)',
+                'opts': {
+                    'quiet': True,
+                    'no_warnings': True,
+                    'extract_flat': False,
+                    'user_agent': 'Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/537.36',
+                    'extractor_args': {
+                        'youtube': {
+                            'player_client': ['tv_embedded'],
+                            'player_skip': ['js', 'configs'],
+                            'skip': ['dash', 'hls'],
+                        }
+                    },
+                    'socket_timeout': 15,
+                    'retries': 1,
+                }
+            },
+            {
+                'name': 'iOS App Client (Mobile)',
+                'opts': {
+                    'quiet': True,
+                    'no_warnings': True,
+                    'extract_flat': False,
+                    'user_agent': 'com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU OS 17_5_1 like Mac OS X)',
+                    'extractor_args': {
+                        'youtube': {
+                            'player_client': ['ios'],
+                            'player_skip': ['configs'],
+                            'skip': ['dash', 'hls'],
+                        }
+                    },
+                    'socket_timeout': 15,
+                    'retries': 1,
+                }
+            },
+            {
+                'name': 'Web Embedded (Fallback)',
+                'opts': {
+                    'quiet': True,
+                    'no_warnings': True,
+                    'extract_flat': False,
+                    'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                    'extractor_args': {
+                        'youtube': {
+                            'player_client': ['web_embedded'],
+                            'player_skip': ['js'],
+                            'skip': ['dash'],
+                        }
+                    },
+                    'socket_timeout': 15,
+                    'retries': 1,
+                }
+            }
+        ]
+        
+        for i, strategy in enumerate(bypass_strategies):
+            try:
+                logging.info(f"Trying YouTube bypass strategy {i+1}: {strategy['name']}")
+                
+                with self.memory_managed_extraction(strategy['opts']) as ydl:
+                    info = ydl.extract_info(url, download=False)
+                    
+                    if info and 'title' in info:
+                        logging.info(f"Successfully extracted YouTube info with {strategy['name']}")
+                        return self._process_platform_info(info, url)
+                        
+            except Exception as e:
+                error_msg = str(e).lower()
+                logging.warning(f"YouTube Strategy {i+1} failed: {str(e)}")
+                
+                # Don't stop for auth errors, continue to next strategy
+                if "sign in" in error_msg or "cookies" in error_msg or "authentication" in error_msg:
+                    continue
+                elif "private" in error_msg:
+                    return {'error': 'This video is private and cannot be downloaded.'}
+                elif "unavailable" in error_msg or "removed" in error_msg:
+                    return {'error': 'This video is no longer available.'}
+                elif "copyright" in error_msg:
+                    return {'error': 'This video is not available due to copyright restrictions.'}
+                else:
+                    continue
+        
+        # If all strategies fail, return fallback response
+        logging.warning("All YouTube bypass strategies failed, returning fallback")
+        return self._create_youtube_fallback_response(url, video_id)
+    
+    def _create_youtube_fallback_response(self, url, video_id):
+        """Create a fallback response when YouTube extraction fails"""
         return {
-            'title': f'YouTube Video {video_id[:8]} (Server IP Blocked)',
+            'title': f'YouTube Video {video_id[:8]} (Extraction Failed)',
             'duration': '0:00',
             'thumbnail': f'https://i.ytimg.com/vi/{video_id}/maxresdefault.jpg',
             'uploader': 'YouTube',
@@ -68,7 +182,7 @@ class VideoDownloader:
                 }
             ],
             'working_url': url,
-            'server_notice': 'This server IP is currently blocked by YouTube. Downloads work perfectly for Instagram, TikTok, Facebook and other platforms. Try a different platform or contact admin for YouTube access.'
+            'server_notice': 'YouTube extraction failed with all bypass strategies. This may be temporary. Try again later or use other platforms like Instagram, TikTok, Facebook.'
         }
 
     def _get_video_info_other_platforms(self, url):
@@ -210,7 +324,7 @@ class VideoDownloader:
         """Enhanced download with proper format selection for all platforms"""
         
         if 'youtube.com' in url or 'youtu.be' in url:
-            return {'error': 'YouTube downloads are currently blocked on this server IP. Please try Instagram, TikTok, Facebook or other platforms.'}
+            return self._download_youtube_with_bypass(url, format_id, audio_only, file_format, progress_hook)
         
         try:
             # Enhanced download options
@@ -355,6 +469,112 @@ class VideoDownloader:
                     return {'error': f'Download failed even with fallback: {str(fallback_e)}'}
             
             return {'error': f'Download failed: {error_msg}'}
+    
+    def _download_youtube_with_bypass(self, url, format_id=None, audio_only=False, file_format=None, progress_hook=None):
+        """Download YouTube video using bypass strategies"""
+        
+        # Try the same bypass strategies as info extraction
+        bypass_strategies = [
+            {
+                'name': 'Android TV Download',
+                'opts': {
+                    'quiet': True,
+                    'no_warnings': True,
+                    'outtmpl': os.path.join(self.temp_dir, '%(title)s.%(ext)s'),
+                    'user_agent': 'com.google.android.youtube.tv/1.0 (Linux; U; Android 9; SM-T500) gzip',
+                    'extractor_args': {
+                        'youtube': {
+                            'player_client': ['android_tv'],
+                            'player_skip': ['configs'],
+                            'skip': ['dash', 'hls', 'translated_subs'],
+                        }
+                    },
+                    'socket_timeout': 30,
+                    'retries': 2,
+                }
+            },
+            {
+                'name': 'iOS Client Download',
+                'opts': {
+                    'quiet': True,
+                    'no_warnings': True,
+                    'outtmpl': os.path.join(self.temp_dir, '%(title)s.%(ext)s'),
+                    'user_agent': 'com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU OS 17_5_1 like Mac OS X)',
+                    'extractor_args': {
+                        'youtube': {
+                            'player_client': ['ios'],
+                            'player_skip': ['configs'],
+                            'skip': ['dash', 'hls'],
+                        }
+                    },
+                    'socket_timeout': 30,
+                    'retries': 2,
+                }
+            },
+            {
+                'name': 'TV Embedded Download',
+                'opts': {
+                    'quiet': True,
+                    'no_warnings': True,
+                    'outtmpl': os.path.join(self.temp_dir, '%(title)s.%(ext)s'),
+                    'user_agent': 'Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/537.36',
+                    'extractor_args': {
+                        'youtube': {
+                            'player_client': ['tv_embedded'],
+                            'player_skip': ['js', 'configs'],
+                        }
+                    },
+                    'socket_timeout': 30,
+                    'retries': 2,
+                }
+            }
+        ]
+        
+        for i, strategy in enumerate(bypass_strategies):
+            try:
+                logging.info(f"Trying YouTube download strategy {i+1}: {strategy['name']}")
+                
+                temp_opts = strategy['opts'].copy()
+                if progress_hook:
+                    temp_opts['progress_hooks'] = [progress_hook]
+                
+                # Format selection
+                if audio_only:
+                    temp_opts['format'] = 'bestaudio/best'
+                elif format_id and format_id not in ['best', 'worst']:
+                    temp_opts['format'] = format_id
+                else:
+                    temp_opts['format'] = 'best[height<=1080]/best'
+                
+                # Format conversion
+                if file_format and file_format not in ['mp4'] and not audio_only:
+                    temp_opts['postprocessors'] = [{
+                        'key': 'FFmpegVideoConverter',
+                        'preferredformat': file_format,
+                    }]
+                elif audio_only and file_format in ['mp3', 'm4a', 'wav']:
+                    temp_opts['postprocessors'] = [{
+                        'key': 'FFmpegExtractAudio',
+                        'preferredcodec': file_format,
+                        'preferredquality': '192',
+                    }]
+                
+                with self.memory_managed_extraction(temp_opts) as ydl:
+                    ydl.download([url])
+                
+                # Find the downloaded file
+                for filename in os.listdir(self.temp_dir):
+                    if os.path.isfile(os.path.join(self.temp_dir, filename)):
+                        file_path = os.path.join(self.temp_dir, filename)
+                        logging.info(f"YouTube download completed successfully: {filename}")
+                        return {'file_path': file_path, 'filename': filename}
+                
+            except Exception as e:
+                logging.warning(f"YouTube download strategy {i+1} failed: {str(e)}")
+                continue
+        
+        # All strategies failed
+        return {'error': 'YouTube download failed with all bypass strategies. This video may be restricted or unavailable.'}
 
     def _extract_video_id(self, url):
         """Extract video ID from YouTube URL"""
