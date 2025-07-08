@@ -233,19 +233,29 @@ class VideoDownloader {
         this.showDownloadProgress();
 
         try {
-            // Enhanced format selection for quick download
+            // Enhanced format selection for quick download - USE SELECTED FORMAT
+            const qualitySelect = document.getElementById('quality-select');
+            const formatSelect = document.getElementById('format-select');
+            
             let formatId = 'best';
             let fileFormat = 'mp4';
             
             if (this.selectedType === 'audio') {
-                formatId = 'bestaudio';
-                fileFormat = 'mp3';
+                formatId = qualitySelect?.value || 'bestaudio';
+                fileFormat = formatSelect?.value || 'mp3';
             } else {
-                // For video, use best available quality
-                formatId = 'best[height<=1080]/best';
+                // For video, use selected quality and format or defaults
+                formatId = qualitySelect?.value || 'best[height<=1080]/best';
+                fileFormat = formatSelect?.value || 'mp4';
             }
 
-            console.log('Quick download with format:', formatId, 'type:', this.selectedType);
+            console.log('Quick download with:', {
+                formatId,
+                fileFormat,
+                selectedType: this.selectedType,
+                qualityValue: qualitySelect?.value,
+                formatValue: formatSelect?.value
+            });
 
             const response = await fetch('/download_video', {
                 method: 'POST',
