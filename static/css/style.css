@@ -756,11 +756,11 @@ body::after {
 @media (max-width: 768px) {
     .format-type-option {
         /* FORCE WIDE HORIZONTAL BUTTONS */
-        padding: 0.8rem 1rem !important;
-        font-size: 1.1rem !important;
-        min-height: 35px !important;
-        max-height: 35px !important;
-        height: 35px !important;
+        padding: 0.4rem 0.6rem !important;
+        font-size: 0.95rem !important;
+        min-height: 28px !important;
+        max-height: 28px !important;
+        height: 28px !important;
         width: 100% !important;
         font-weight: 700 !important;
         margin: 0 !important;
@@ -1573,12 +1573,12 @@ footer .container {
 /* MOBILE VERY SMALL SCREENS - KEEP HORIZONTAL */
 @media (max-width: 576px) {
     .format-type-option {
-        padding: 0.7rem 0.8rem !important;
-        font-size: 1rem !important;
+        padding: 0.35rem 0.5rem !important;
+        font-size: 0.9rem !important;
         margin: 0 !important;
-        min-height: 32px !important;
-        max-height: 32px !important;
-        height: 32px !important;
+        min-height: 26px !important;
+        max-height: 26px !important;
+        height: 26px !important;
         width: 100% !important;
         display: flex !important;
         align-items: center !important;

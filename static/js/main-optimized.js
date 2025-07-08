@@ -233,7 +233,9 @@ class VideoDownloader {
         this.showDownloadProgress();
 
         try {
-            // Enhanced format selection for quick download - USE SELECTED FORMAT
+            // FORCE populate advanced options first to get current selections
+            this.populateAdvancedOptions();
+            
             const qualitySelect = document.getElementById('quality-select');
             const formatSelect = document.getElementById('format-select');
             
@@ -244,8 +246,8 @@ class VideoDownloader {
                 formatId = qualitySelect?.value || 'bestaudio';
                 fileFormat = formatSelect?.value || 'mp3';
             } else {
-                // For video, use selected quality and format or defaults
-                formatId = qualitySelect?.value || 'best[height<=1080]/best';
+                // For video, use selected quality and format from dropdowns
+                formatId = qualitySelect?.value || 'best[height<=720]/best';
                 fileFormat = formatSelect?.value || 'mp4';
             }
 
