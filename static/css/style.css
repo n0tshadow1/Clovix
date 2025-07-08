@@ -732,24 +732,26 @@ body::after {
 }
 
 /* Format type selection (Video/Audio) - Enhanced for both desktop and mobile */
-/* DESKTOP FORMAT TYPE BUTTONS */
+/* DESKTOP FORMAT TYPE BUTTONS - COMPACT */
 .format-type-option {
-    padding: 1.2rem 1rem;
+    padding: 0.5rem 0.8rem;
     text-align: center;
     background: linear-gradient(145deg, rgba(59, 130, 246, 0.15), rgba(15, 23, 42, 0.95));
-    border: 3px solid rgba(59, 130, 246, 0.4);
-    border-radius: 16px;
+    border: 2px solid rgba(59, 130, 246, 0.4);
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-weight: 700;
-    font-size: 1.1rem;
+    font-weight: 600;
+    font-size: 0.9rem;
     color: rgba(255, 255, 255, 0.95);
-    min-height: 75px;
+    min-height: 32px;
+    max-height: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* MOBILE VIDEO/AUDIO BUTTONS - COMPLETE OVERRIDE */

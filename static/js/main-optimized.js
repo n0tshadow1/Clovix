@@ -147,15 +147,15 @@ class VideoDownloader {
         qualitySelect.innerHTML = '<option value="">Best Available</option>';
         formatSelect.innerHTML = '';
 
-        // Add all quality options that actually work
+        // Add all quality options that actually work - FIXED FOR EXACT QUALITY
         const allQualities = [
             { value: 'best', text: '4K (2160p) - Best Available' },
             { value: 'best[height<=1440]', text: '1440p (2K) - Excellent' },
             { value: 'best[height<=1080]', text: '1080p (Full HD) - Great' },
             { value: 'best[height<=720]', text: '720p (HD) - Good' },
             { value: 'best[height<=480]', text: '480p (SD) - Standard' },
-            { value: 'best[height<=360]', text: '360p - Basic' },
-            { value: 'best[height<=240]', text: '240p - Low' },
+            { value: 'worst[height>=360][height<=360]', text: '360p - Basic' },
+            { value: 'worst[height>=240][height<=240]', text: '240p - Low' },
             { value: 'worst', text: '144p - Minimal' }
         ];
         
