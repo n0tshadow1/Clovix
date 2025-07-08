@@ -143,40 +143,44 @@ class VideoDownloader {
         
         if (!qualitySelect || !formatSelect) return;
 
-        // Clear existing options (keep first default option)
+        // Clear existing options and add comprehensive options
         qualitySelect.innerHTML = '<option value="">Best Available</option>';
-        formatSelect.innerHTML = '<option value="">Auto</option>';
+        formatSelect.innerHTML = '';
+
+        // Add all quality options from 4K to 144p for any video
+        const allQualities = [
+            { value: 'best[height<=2160]', text: '4K (2160p)' },
+            { value: 'best[height<=1440]', text: '1440p (2K)' },
+            { value: 'best[height<=1080]', text: '1080p (Full HD)' },
+            { value: 'best[height<=720]', text: '720p (HD)' },
+            { value: 'best[height<=480]', text: '480p (SD)' },
+            { value: 'best[height<=360]', text: '360p' },
+            { value: 'best[height<=240]', text: '240p' },
+            { value: 'best[height<=144]', text: '144p' }
+        ];
+        
+        allQualities.forEach(quality => {
+            const option = document.createElement('option');
+            option.value = quality.value;
+            option.textContent = quality.text;
+            qualitySelect.appendChild(option);
+        });
 
         if (this.selectedType === 'video') {
-            // Populate video qualities
-            const availableHeights = [...new Set(this.videoData.formats.map(f => f.height))].sort((a, b) => b - a);
+            // Add format conversion options for video
+            const formats = [
+                { value: 'mp4', text: 'MP4 (Default)' },
+                { value: 'mkv', text: 'MKV (High Quality)' },
+                { value: 'webm', text: 'WebM (Web Optimized)' },
+                { value: 'avi', text: 'AVI (Compatible)' },
+                { value: '3gp', text: '3GP (Mobile)' },
+                { value: 'flv', text: 'FLV (Flash Video)' }
+            ];
             
-            availableHeights.forEach(height => {
-                const format = this.videoData.formats.find(f => f.height === height);
-                if (format) {
-                    let label;
-                    if (height >= 2160) label = '4K (2160p)';
-                    else if (height >= 1440) label = '2K (1440p)';
-                    else if (height >= 1080) label = '1080p';
-                    else if (height >= 720) label = '720p';
-                    else if (height >= 480) label = '480p';
-                    else if (height >= 360) label = '360p';
-                    else if (height >= 240) label = '240p';
-                    else label = '144p';
-                    
-                    const option = document.createElement('option');
-                    option.value = format.format_id;
-                    option.textContent = label;
-                    qualitySelect.appendChild(option);
-                }
-            });
-
-            // Populate video formats
-            const availableExts = [...new Set(this.videoData.formats.map(f => f.ext))];
-            availableExts.forEach(ext => {
+            formats.forEach(format => {
                 const option = document.createElement('option');
-                option.value = ext;
-                option.textContent = ext.toUpperCase();
+                option.value = format.value;
+                option.textContent = format.text;
                 formatSelect.appendChild(option);
             });
         } else {
