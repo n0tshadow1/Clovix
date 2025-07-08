@@ -1491,29 +1491,16 @@ footer .container {
 .download-status-container {
     display: flex !important;
     align-items: center !important;
-    justify-content: space-between !important;
-    margin-bottom: 1rem;
-    gap: 0.75rem;
-    flex-direction: row !important;
-}
-
-.download-spinner {
-    display: flex !important;
-    align-items: center !important;
     justify-content: center !important;
-    flex-shrink: 0;
-    order: 2 !important;
-    margin-left: 0.75rem !important;
-    margin-right: 0 !important;
+    margin-bottom: 1rem;
+    flex-direction: row !important;
 }
 
 .download-status-text {
     color: rgba(255, 255, 255, 0.9);
     font-size: 0.95rem;
     font-weight: 500;
-    order: 1 !important;
-    margin-right: 0 !important;
-    flex-grow: 1;
+    text-align: center;
 }
 
 /* Optimized Format Type Options */
@@ -1540,7 +1527,7 @@ footer .container {
     .format-type-option {
         padding: 0.6rem 0.4rem;
         font-size: 0.85rem;
-        margin: 0.2rem;
+        margin: 0.1rem;
         min-height: 2.5rem;
     }
     
@@ -1548,21 +1535,22 @@ footer .container {
         font-size: 0.8rem;
     }
     
+    /* Force side-by-side layout on mobile */
+    .format-type-option {
+        width: calc(50% - 0.2rem) !important;
+        display: inline-block !important;
+        vertical-align: top !important;
+        box-sizing: border-box !important;
+    }
+    
     /* Mobile-specific download progress positioning */
     .download-status-container {
-        justify-content: space-between !important;
+        justify-content: center !important;
         flex-direction: row !important;
     }
     
-    .download-spinner {
-        order: 2 !important;
-        margin-left: 0.5rem !important;
-        margin-right: 0 !important;
-    }
-    
     .download-status-text {
-        order: 1 !important;
-        text-align: left !important;
+        text-align: center !important;
         flex-grow: 1 !important;
     }
     
