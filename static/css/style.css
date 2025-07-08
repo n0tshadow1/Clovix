@@ -1524,23 +1524,42 @@ footer .container {
 
 /* Mobile responsive format options */
 @media (max-width: 576px) {
+    /* Override Bootstrap columns for mobile */
     .format-type-option {
-        padding: 0.6rem 0.4rem;
-        font-size: 0.85rem;
-        margin: 0.1rem;
-        min-height: 2.5rem;
-    }
-    
-    .format-type-option i {
-        font-size: 0.8rem;
-    }
-    
-    /* Force side-by-side layout on mobile */
-    .format-type-option {
-        width: calc(50% - 0.2rem) !important;
+        padding: 0.6rem 0.4rem !important;
+        font-size: 0.85rem !important;
+        margin: 0.1rem !important;
+        min-height: 2.5rem !important;
+        width: calc(50% - 0.25rem) !important;
         display: inline-block !important;
         vertical-align: top !important;
         box-sizing: border-box !important;
+        float: left !important;
+    }
+    
+    .format-type-option i {
+        font-size: 0.8rem !important;
+    }
+    
+    /* Override Bootstrap row and col behavior on mobile */
+    .row.g-2 {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    
+    .col-6 {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        width: 50% !important;
+        max-width: 50% !important;
+        flex: 0 0 50% !important;
+    }
+    
+    /* Clearfix for floating elements */
+    .mb-3:after {
+        content: "";
+        display: table;
+        clear: both;
     }
     
     /* Mobile-specific download progress positioning */
