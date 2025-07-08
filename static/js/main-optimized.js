@@ -159,7 +159,7 @@ class VideoDownloader {
         sortedFormats.forEach(format => {
             const option = document.createElement('option');
             option.value = format.format_id;
-            option.textContent = `${format.quality} (${format.height}p) - ${format.ext.toUpperCase()}`;
+            option.textContent = `${format.height}p`;
             qualitySelect.appendChild(option);
         });
         

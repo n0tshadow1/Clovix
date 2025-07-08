@@ -252,8 +252,6 @@ class VideoDownloader:
                         ydl_opts['postprocessors'] = [{
                             'key': 'FFmpegVideoConvertor',
                             'preferedformat': '3gp',
-                            'preferedcodec': 'h264',
-                            'preferredquality': '5',
                         }]
                     elif file_format in ['mkv', 'webm', 'avi']:
                         ydl_opts['postprocessors'] = [{
