@@ -1547,6 +1547,34 @@ footer .container {
     .format-type-option i {
         font-size: 0.8rem;
     }
+    
+    /* Mobile-specific download progress positioning */
+    .download-status-container {
+        justify-content: space-between !important;
+        flex-direction: row !important;
+    }
+    
+    .download-spinner {
+        order: 2 !important;
+        margin-left: 0.5rem !important;
+        margin-right: 0 !important;
+    }
+    
+    .download-status-text {
+        order: 1 !important;
+        text-align: left !important;
+        flex-grow: 1 !important;
+    }
+    
+    .download-progress-card {
+        padding: 1rem !important;
+    }
+    
+    .download-progress-header {
+        flex-direction: row !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
 }
 
 .format-type-option:hover {
