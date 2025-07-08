@@ -389,7 +389,20 @@ class VideoDownloader {
     trackDownloadProgress() {
         if (!this.currentDownloadId) return;
 
+        let attempts = 0;
+        const maxAttempts = 120; // 1 minute timeout
+
         this.progressInterval = setInterval(async () => {
+            attempts++;
+            
+            if (attempts > maxAttempts) {
+                console.log('Download timeout reached');
+                clearInterval(this.progressInterval);
+                this.showError('Download timeout. Please try again.');
+                this.hideDownloadProgress();
+                return;
+            }
+
             try {
                 const response = await fetch(`/download_progress/${this.currentDownloadId}`);
                 const data = await response.json();
@@ -407,10 +420,12 @@ class VideoDownloader {
                 if (data.progress !== undefined) {
                     this.updateProgress(data.progress, data.status || 'Downloading...');
 
-                    if (data.progress >= 100 && data.status === 'finished') {
+                    if (data.progress >= 100 || data.status === 'finished') {
                         clearInterval(this.progressInterval);
                         this.showDownloadComplete();
-                        this.triggerFileDownload();
+                        setTimeout(() => {
+                            this.triggerFileDownload();
+                        }, 500);
                     }
                 } else {
                     console.log('No progress data available yet');

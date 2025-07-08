@@ -99,7 +99,26 @@ class VideoDownloader:
                 logging.warning(f"Method {i+1} failed: {str(e)}")
                 continue
         
-        # If extraction fails, provide a working fallback
+        # If extraction fails, try one more simpler approach
+        try:
+            cmd = ['yt-dlp', '--get-title', '--get-uploader', '--get-duration', '--get-view-count', '--get-thumbnail', '--quiet', '--no-warnings', url]
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
+            if result.returncode == 0:
+                lines = result.stdout.strip().split('\n')
+                if len(lines) >= 3:
+                    return {
+                        'title': lines[0] if lines[0] else 'Video',
+                        'uploader': lines[1] if lines[1] else 'Unknown',
+                        'duration': lines[2] if lines[2] else 'Unknown',
+                        'view_count': int(lines[3]) if len(lines) > 3 and lines[3].isdigit() else 0,
+                        'thumbnail': lines[4] if len(lines) > 4 else '',
+                        'formats': self._get_default_formats(),
+                        'working_url': url
+                    }
+        except Exception:
+            pass
+        
+        # Final fallback
         return self._create_working_fallback(url)
     
     def _get_format_info(self, url, video_id):

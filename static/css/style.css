@@ -712,29 +712,30 @@ body::after {
     
     /* Force Video/Audio buttons to stay side by side on mobile */
     .format-type-option {
-        padding: 1.2rem 0.5rem !important;
-        font-size: 1rem !important;
-        min-height: 60px !important;
+        padding: 1.5rem 1rem !important;
+        font-size: 1.1rem !important;
+        min-height: 70px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         width: 100% !important;
         font-weight: 600 !important;
+        margin: 0 !important;
     }
     
     /* Ensure row with Video/Audio buttons stays horizontal */
     .row.g-2 {
         display: flex !important;
         flex-direction: row !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
+        margin-left: -0.5rem !important;
+        margin-right: -0.5rem !important;
     }
     
     .row.g-2 .col-6 {
         flex: 0 0 50% !important;
         max-width: 50% !important;
-        padding-left: 0.25rem !important;
-        padding-right: 0.25rem !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
     }
 }
 
