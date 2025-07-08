@@ -47,77 +47,87 @@ class VideoDownloader:
         # Strategy 1: Advanced bypass strategies with different clients
         bypass_strategies = [
             {
-                'name': 'Android TV Embedded (No Auth)',
+                'name': 'Android Client (Most Reliable)',
                 'opts': {
                     'quiet': True,
                     'no_warnings': True,
                     'extract_flat': False,
-                    'user_agent': 'com.google.android.youtube.tv/1.0 (Linux; U; Android 9; SM-T500) gzip',
+                    'user_agent': 'com.google.android.youtube/17.31.35 (Linux; U; Android 11) gzip',
                     'extractor_args': {
                         'youtube': {
-                            'player_client': ['android_tv'],
-                            'player_skip': ['configs'],
-                            'skip': ['dash', 'hls', 'translated_subs'],
-                            'lang': ['en'],
-                            'innertube_host': 'www.youtube.com',
-                        }
-                    },
-                    'socket_timeout': 15,
-                    'retries': 1,
-                }
-            },
-            {
-                'name': 'TV Embedded Client (Universal)',
-                'opts': {
-                    'quiet': True,
-                    'no_warnings': True,
-                    'extract_flat': False,
-                    'user_agent': 'Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/537.36',
-                    'extractor_args': {
-                        'youtube': {
-                            'player_client': ['tv_embedded'],
+                            'player_client': ['android'],
                             'player_skip': ['js', 'configs'],
-                            'skip': ['dash', 'hls'],
                         }
                     },
-                    'socket_timeout': 15,
-                    'retries': 1,
+                    'http_headers': {
+                        'X-YouTube-Client-Name': '3',
+                        'X-YouTube-Client-Version': '17.31.35',
+                    },
+                    'socket_timeout': 20,
+                    'retries': 2,
                 }
             },
             {
-                'name': 'iOS App Client (Mobile)',
+                'name': 'iOS Client with Headers',
                 'opts': {
                     'quiet': True,
                     'no_warnings': True,
                     'extract_flat': False,
-                    'user_agent': 'com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU OS 17_5_1 like Mac OS X)',
+                    'user_agent': 'com.google.ios.youtube/19.29.1 (iPhone14,3; U; CPU OS 15_6 like Mac OS X)',
                     'extractor_args': {
                         'youtube': {
                             'player_client': ['ios'],
-                            'player_skip': ['configs'],
-                            'skip': ['dash', 'hls'],
+                            'player_skip': ['js'],
                         }
                     },
-                    'socket_timeout': 15,
-                    'retries': 1,
+                    'http_headers': {
+                        'X-YouTube-Client-Name': '5',
+                        'X-YouTube-Client-Version': '19.29.1',
+                    },
+                    'socket_timeout': 20,
+                    'retries': 2,
                 }
             },
             {
-                'name': 'Web Embedded (Fallback)',
+                'name': 'Web with Referer Bypass',
                 'opts': {
                     'quiet': True,
                     'no_warnings': True,
                     'extract_flat': False,
-                    'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                    'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                     'extractor_args': {
                         'youtube': {
-                            'player_client': ['web_embedded'],
-                            'player_skip': ['js'],
-                            'skip': ['dash'],
+                            'player_client': ['web'],
+                            'player_skip': ['configs'],
                         }
                     },
-                    'socket_timeout': 15,
-                    'retries': 1,
+                    'http_headers': {
+                        'Referer': 'https://www.youtube.com/',
+                        'Origin': 'https://www.youtube.com',
+                    },
+                    'socket_timeout': 20,
+                    'retries': 2,
+                }
+            },
+            {
+                'name': 'MWEB Client (Mobile Web)',
+                'opts': {
+                    'quiet': True,
+                    'no_warnings': True,
+                    'extract_flat': False,
+                    'user_agent': 'Mozilla/5.0 (Linux; Android 11; SM-A205U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.79 Mobile Safari/537.36',
+                    'extractor_args': {
+                        'youtube': {
+                            'player_client': ['mweb'],
+                            'player_skip': ['js'],
+                        }
+                    },
+                    'http_headers': {
+                        'X-YouTube-Client-Name': '2',
+                        'X-YouTube-Client-Version': '2.20220801.00.00',
+                    },
+                    'socket_timeout': 20,
+                    'retries': 2,
                 }
             }
         ]
@@ -516,18 +526,21 @@ class VideoDownloader:
         # Try the same bypass strategies as info extraction
         bypass_strategies = [
             {
-                'name': 'Android TV Download',
+                'name': 'Android Client Download',
                 'opts': {
                     'quiet': True,
                     'no_warnings': True,
                     'outtmpl': os.path.join(self.temp_dir, '%(title)s.%(ext)s'),
-                    'user_agent': 'com.google.android.youtube.tv/1.0 (Linux; U; Android 9; SM-T500) gzip',
+                    'user_agent': 'com.google.android.youtube/17.31.35 (Linux; U; Android 11) gzip',
                     'extractor_args': {
                         'youtube': {
-                            'player_client': ['android_tv'],
-                            'player_skip': ['configs'],
-                            'skip': ['dash', 'hls', 'translated_subs'],
+                            'player_client': ['android'],
+                            'player_skip': ['js', 'configs'],
                         }
+                    },
+                    'http_headers': {
+                        'X-YouTube-Client-Name': '3',
+                        'X-YouTube-Client-Version': '17.31.35',
                     },
                     'socket_timeout': 30,
                     'retries': 2,
@@ -539,30 +552,37 @@ class VideoDownloader:
                     'quiet': True,
                     'no_warnings': True,
                     'outtmpl': os.path.join(self.temp_dir, '%(title)s.%(ext)s'),
-                    'user_agent': 'com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU OS 17_5_1 like Mac OS X)',
+                    'user_agent': 'com.google.ios.youtube/19.29.1 (iPhone14,3; U; CPU OS 15_6 like Mac OS X)',
                     'extractor_args': {
                         'youtube': {
                             'player_client': ['ios'],
-                            'player_skip': ['configs'],
-                            'skip': ['dash', 'hls'],
+                            'player_skip': ['js'],
                         }
+                    },
+                    'http_headers': {
+                        'X-YouTube-Client-Name': '5',
+                        'X-YouTube-Client-Version': '19.29.1',
                     },
                     'socket_timeout': 30,
                     'retries': 2,
                 }
             },
             {
-                'name': 'TV Embedded Download',
+                'name': 'MWEB Client Download',
                 'opts': {
                     'quiet': True,
                     'no_warnings': True,
                     'outtmpl': os.path.join(self.temp_dir, '%(title)s.%(ext)s'),
-                    'user_agent': 'Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/537.36',
+                    'user_agent': 'Mozilla/5.0 (Linux; Android 11; SM-A205U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.79 Mobile Safari/537.36',
                     'extractor_args': {
                         'youtube': {
-                            'player_client': ['tv_embedded'],
-                            'player_skip': ['js', 'configs'],
+                            'player_client': ['mweb'],
+                            'player_skip': ['js'],
                         }
+                    },
+                    'http_headers': {
+                        'X-YouTube-Client-Name': '2',
+                        'X-YouTube-Client-Version': '2.20220801.00.00',
                     },
                     'socket_timeout': 30,
                     'retries': 2,
